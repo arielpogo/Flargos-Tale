@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 61bff7dbc4af9b84cb6df5698aa8014b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - graph: {instanceID: 0}
+  - portrait: {instanceID: 0}
+  - fontAsset: {fileID: 11400000, guid: b8b9d924a22527a41957a2146ae9c281, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
