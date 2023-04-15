@@ -7,13 +7,45 @@ using UnityEngine.UI;
 using XNode;
 
 public class DialogueHandler : MonoBehaviour{
+
+    //****************************//
+    //                            //
+    //         VARIABLES          //
+    //                            //
+    //****************************//
+
+    //dialogue sequencing-related
     private BaseDialogueNode _currentNode;
     private Vector4 _portraitMargins = new(128.0f, 4.0f, 0.0f, 0.0f); //same as below, but margins are moved to the right 128 pixels to make way for the portrait
     private Vector4 _noPortraitMargins = new(0.0f, 4.0f, 0.0f, 0.0f);
 
+    //dialogue writing-related
+    const float FONTSIZE = 25.0F;
+    const float DELAY = 0.07F; //Default delay, will change with custom markup in the future.
+
+    private bool _currentLineFinished = false;
+    private bool _skipText = false; //skip writing, display all text
+    private bool _proceed = false; //go to the next dialogue
+
+    private float _delay = DELAY;
+
+    //input-related
+    private Vector2 _decisionDirection;
+
+    //****************************//
+    //                            //
+    //    DIALOGUE SEQUENCING     //
+    //                            //
+    //****************************//
+
     /// <summary>
-    /// Called by a trigger or event.
+    /// Begins a dialogue sequence.
     /// </summary>
+    /// <param name="graph">The DialogueGraph to read from.</param>
+    /// <param name="textBox">The TMP text box to write to.</param>
+    /// <param name="dialogueBoxPortrait">The Unity image component which will hold the portrait (or other image).</param>
+    /// <param name="dialogueBox">(Optional) The dialogue box which is being used.</param>
+    /// <exception cref="NotImplementedException">Temporarily for the node types I haven't implemented functionality yet.</exception>
     public IEnumerator DialogueSequence(DialogueGraph graph, TMP_Text textBox, Image dialogueBoxPortrait, GameObject dialogueBox = null) {
         GameManager.Instance.ChangeGameState(GameState.dialogue);
         _currentNode = graph.GetStartNode();
@@ -83,15 +115,11 @@ public class DialogueHandler : MonoBehaviour{
         if (_nextNode != null) _currentNode = _nextNode;
     }
 
-    ////////////////////////////////////////////////////DIALOGUE WRITING//////////////////////////////////////////////
-    const float FONTSIZE = 25.0F;
-    const float DELAY = 0.07F; //Default delay, will change with custom markup in the future.
-    
-    private bool _currentLineFinished = false;
-    private bool _skipText = false; //skip writing, display all text
-    private bool _proceed = false; //go to the next dialogue
-
-    private float _delay = DELAY;
+    //****************************//
+    //                            //
+    //      DIALOGUE WRITING      //
+    //                            //
+    //****************************//
 
     /// Writes one screen of dialogue to the textHolder.
     /// </summary>
@@ -175,9 +203,8 @@ public class DialogueHandler : MonoBehaviour{
         Debug.Log("LINE FINISHED");
     }
 
-
     /// <summary>
-    /// Displays a decision
+    /// Displays a decision.
     /// </summary>
     /** public void WriteDecision(List<string> decisions, TMP_Text textHolder, TMP_FontAsset fontAsset) {
          //Will handle drawing the text for one to four decisions, it will display around a WASD sprite which corresponds to pressing that button to choose that deicison (and then pressing it again to confirm).
@@ -185,30 +212,27 @@ public class DialogueHandler : MonoBehaviour{
      }
     **/
 
+    //****************************//
+    //                            //
+    //           INPUT            //
+    //                            //
+    //****************************//
 
-    ////////////////////////////////////////////////////INPUT////////////////////////////////////////////
-    private Vector2 _decisionDirection;
-
-    /// <summary>
-    /// Called by Unity input events
-    /// </summary>
+    // Called by Unity input events
     public void Proceed(InputAction.CallbackContext context) {
         if (context.performed) {
             if (!_currentLineFinished) _skipText = true;
             else _proceed = true;
         }
     }
-    /// <summary>
-    /// Only called by cutscene signals. Because they are predictable, we do not need to check them.
-    /// </summary>
+
+    // Only called by cutscene signals. Because they are predictable, we do not need to check them.
     public void CutsceneProceed() {
         //if (GameManager.Instance.MasterGameState != GameState.cutscene) Debug.LogWarning("CutsceneProceed called while not in a cutscene.");
         _proceed = true;
     }
     
-    /// <summary>
-    /// Called by Unity input events
-    /// </summary>
+    //called by Unity events
     public void Decide(InputAction.CallbackContext context){
     	if(context.performed) _decisionDirection = context.ReadValue<Vector2>();
 	else _decisionDirection = Vector2.zero;
