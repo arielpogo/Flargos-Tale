@@ -1,14 +1,13 @@
 using System;
 using UnityEngine.SceneManagement;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// The game manager handles what happens when the state of the game changes
 /// </summary>
 public class GameManager : PersistentSingleton<GameManager> {
     public GameState MasterGameState { get; private set; }
-    public GameObject player;
+    public GameObject player; //set in the editor
 
     private void Start() {
         if(SceneManager.GetActiveScene().name == "mainMenu") HandleStartup();
@@ -21,55 +20,8 @@ public class GameManager : PersistentSingleton<GameManager> {
     /// <exception cref="ArgumentOutOfRangeException">When a GameState without logic is passed</exception>
     public void ChangeGameState(GameState newState) {
         if (newState == MasterGameState) return; //no change needed
-
-        switch (newState) {
-            case GameState.mainMenu:
-                switch (MasterGameState) {
-                    case GameState.startup:
-                        FromStartupToMainMenu();
-                        break;
-                    case GameState.overworld:
-                        break;
-                }
-                break;
-
-            case GameState.overworld:
-                if (player == null) Debug.Log("No player selected for this scene (this is ok if there is supposed to be no player to control here).");
-                //detect what state we're switching from
-                switch (MasterGameState) {
-                    case GameState.mainMenu:
-                        FromMainMenuToOverworld();
-                        break;
-                    case GameState.overworldMenu:
-                        FromOverworldMenuToOverworld();
-                        break;
-                    case GameState.dialogue:
-                        FromDialogueToOverworld();
-                        break;
-                }
-                break;
-
-            case GameState.overworldMenu:
-                FromOverworldToOverworldMenu();
-                break;
-
-            case GameState.cutscene:
-                switch (MasterGameState) {
-                    case GameState.startup:
-                        break;
-                    case GameState.overworld:
-                        FromOverworldToCutscene();
-                        break;
-                }
-                break;
-            case GameState.dialogue:
-                FromOverworldToDialogue();
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
-        }
         MasterGameState = newState;
+        GameEvents.Instance.OnGameStateChange?.Invoke(newState);
     }
 
     /// <summary>
@@ -84,46 +36,6 @@ public class GameManager : PersistentSingleton<GameManager> {
             ChangeGameState(GameState.mainMenu);
         }
     }
-    
-    /// <summary>
-    /// When startup and setup is finished (thus at least one save exists)
-    /// </summary>
-    private void FromStartupToMainMenu() {
-
-    }
-
-    /// <summary>
-    /// Handles loading a save file
-    /// </summary>
-    private void FromMainMenuToOverworld() {
-        
-    }
-
-    /// <summary>
-    /// Handles pausing control when the ingame menu is opened
-    /// </summary>
-    private void FromOverworldToOverworldMenu() {
-        player.GetComponent<PlayerInput>().SwitchCurrentActionMap("UI"); //Change this so that the player controller does this, later
-    }
-
-    /// <summary>
-    /// Handles closing the ingame menu
-    /// </summary>
-    private void FromOverworldMenuToOverworld() {
-        player.GetComponent<PlayerInput>().SwitchCurrentActionMap("Overworld"); //Ditto
-    }
-
-    private void FromOverworldToCutscene() {
-        player.GetComponent<PlayerInput>().SwitchCurrentActionMap("Cutscene"); // Ditto
-    }
-
-
-    private void FromOverworldToDialogue() {
-        player.GetComponent<PlayerInput>().SwitchCurrentActionMap("Dialogue"); //Ditto, I guess?
-    }
-    private void FromDialogueToOverworld() {
-        player.GetComponent<PlayerInput>().SwitchCurrentActionMap("Overworld");
-    }
 }
 
 [Serializable]
@@ -134,4 +46,5 @@ public enum GameState {
     overworldMenu = 3,
     dialogue = 4,
     cutscene = 5,
+    cutscene_with_control = 6
 }

@@ -6,6 +6,7 @@ using UnityEngine;
 /// <summary>
 /// Class which holds game events.
 /// </summary>
-public class GameEvents : MonoBehaviour {
-
+public class GameEvents : PersistentSingleton<GameEvents> {
+    public delegate void GameStateChange(GameState NewGameState); //for when the game state changes
+    public GameStateChange OnGameStateChange;
 }

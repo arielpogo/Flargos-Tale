@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.SceneManagement;
-using System.Collections;
 
 public class MainMenuManager : Singleton<MainMenuManager>{
     public TextMeshProUGUI[] options = new TextMeshProUGUI[3];
