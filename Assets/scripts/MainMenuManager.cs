@@ -4,6 +4,13 @@ using TMPro;
 using UnityEngine.SceneManagement;
 
 public class MainMenuManager : Singleton<MainMenuManager>{
+
+    //****************************//
+    //                            //
+    //         VARIABLES          //
+    //                            //
+    //****************************//
+
     public TextMeshProUGUI[] options = new TextMeshProUGUI[3];
     private Color idle = Color.white;
     private Color highlight = new(1, 1, 0, 1);
@@ -19,9 +26,13 @@ public class MainMenuManager : Singleton<MainMenuManager>{
     private Canvas _canvas;
     private PlayerInput _playerInput;
 
-    /// <summary>
-    /// Setup, specifically subscribbing to events and calculating values
-    /// </summary>
+    //****************************//
+    //                            //
+    //      MENU NAVIGATION       //
+    //                            //
+    //****************************//
+
+    //Subscribbing to events and calculating values
     private new void Awake() {
         base.Awake();
         maxOption = options.Length - 1;
@@ -30,10 +41,7 @@ public class MainMenuManager : Singleton<MainMenuManager>{
         _playerInput = GetComponent<PlayerInput>();
     }
 
-    /// <summary>
-    /// Called by unity input system events when the menu is navigated
-    /// </summary>
-    /// <param name="context">Standard unity input system event param</param>
+    // Called by unity input system events when the menu is navigated
     public void OnNavigate(InputAction.CallbackContext context) {
         if(context.started) {
             direction = context.ReadValue<Vector2>();
@@ -56,10 +64,7 @@ public class MainMenuManager : Singleton<MainMenuManager>{
         }
     }
 
-    /// <summary>
-    /// Handles when an option is selected
-    /// </summary>
-    /// <param name="context">Default unity input system param</param>
+    // Handles when an option is selected
     public void OnSelect(InputAction.CallbackContext context) {
         if (context.started) {
             switch (selected) {
@@ -75,9 +80,13 @@ public class MainMenuManager : Singleton<MainMenuManager>{
         }
     }
 
-    /// <summary>
-    /// Handles playing the intro cutscene when a new game is started
-    /// </summary>
+    //****************************//
+    //                            //
+    //   INTRO CUTSCENE-RELATED   //
+    //                            //
+    //****************************//
+
+    // Handles playing the intro cutscene when a new game is started
     public void StartIntro() {
         _canvas.enabled = false;
         _playerInput.SwitchCurrentActionMap("Cutscene");
@@ -85,9 +94,8 @@ public class MainMenuManager : Singleton<MainMenuManager>{
         _introCutsceneCanvas.SetActive(true);
         _introCutsceneTimeline.SetActive(true);
     }
-    /// <summary>
-    /// Cleans up intro cutscene
-    /// </summary>
+
+    // Cleans up intro cutscene
     public void EndCutscene() {
         _introCutsceneCanvas.SetActive(false);
         _introCutsceneTimeline.SetActive(false);
