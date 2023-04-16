@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+//Handles the main menu and the intro cutscene.
 public class MainMenuManager : Singleton<MainMenuManager>{
 
     //****************************//
@@ -37,8 +38,18 @@ public class MainMenuManager : Singleton<MainMenuManager>{
         base.Awake();
         maxOption = options.Length - 1;
 
+        GameEvents.Instance.StartIntro += StartIntro;
+        GameEvents.Instance.OnGameStateChange += GoToMainMenu;
+
         _canvas = GetComponent<Canvas>();
         _playerInput = GetComponent<PlayerInput>();
+    }
+
+    private void OnDestroy() {
+        if(GameEvents.Instance != null) {
+            GameEvents.Instance.StartIntro -= StartIntro;
+            GameEvents.Instance.OnGameStateChange -= GoToMainMenu;
+        }
     }
 
     // Called by unity input system events when the menu is navigated
@@ -99,11 +110,13 @@ public class MainMenuManager : Singleton<MainMenuManager>{
     public void EndCutscene() {
         _introCutsceneCanvas.SetActive(false);
         _introCutsceneTimeline.SetActive(false);
-        GoToMainMenu();
+        GameManager.Instance.ChangeGameState(GameState.mainMenu);
     }
-    private void GoToMainMenu() {
-       _canvas.enabled = true;
-       _playerInput.SwitchCurrentActionMap("UI");
+    private void GoToMainMenu(GameState newGameState) {
+        if (newGameState == GameState.mainMenu) {
+            _canvas.enabled = true;
+            _playerInput.SwitchCurrentActionMap("UI");
+        }
     }
 }
 

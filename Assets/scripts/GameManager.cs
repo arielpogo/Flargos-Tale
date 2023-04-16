@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// The game manager handles what happens when the state of the game changes
+/// The game manager handles the gamestate and the startup.
 /// </summary>
 public class GameManager : PersistentSingleton<GameManager> {
     public GameState MasterGameState { get; private set; }
@@ -30,7 +30,7 @@ public class GameManager : PersistentSingleton<GameManager> {
     private void HandleStartup() {
         Screen.SetResolution(640, 480, false);
         if (SaveManager.Instance.SaveFiles.Length == 0) {
-            MainMenuManager.Instance.StartIntro(); //trigger the StartIntro event
+            GameEvents.Instance.StartIntro?.Invoke(); //trigger the StartIntro event
         }
         else {
             ChangeGameState(GameState.mainMenu);

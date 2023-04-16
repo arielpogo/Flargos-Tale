@@ -162,13 +162,13 @@ public class DialogueHandler : MonoBehaviour{
         ///Ok, at this point we have two strings. What was actually inputted into the node (string input) and the modified version without any commands (string _actualText). We're looping through what was actually inputted, "typing" out the characters in _actualText 1:1 with the input. When a command is encountered, the 1:1 is broken, the command is handled (thus i goes ahead of maxVisibleCharacters), then maxInputCharacters continues to go along with the input.
         for (int i = 0; i < input.Length; i++) {
             if (input[i] == '|') {//custom command
-                Debug.Log(input[i]);
+                //Debug.Log(input[i]);
                 if (i + 1 < input.Length) i++; //if a pipe is the last thing in a string, break
                 else break;
 
                 command = input[i];
 
-                Debug.Log(input[i]);
+                //Debug.Log(input[i]);
                 if (i + 1 < input.Length) i++; //if the command is the last thing in the string, break
                 else break;
 
@@ -177,7 +177,7 @@ public class DialogueHandler : MonoBehaviour{
                         if (_skipText) break; //don't bother changing delay
 
                         while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
-                            Debug.Log(input[i]);
+                            //Debug.Log(input[i]);
                             commandParameters += input[i];
                             i++;
                         }
@@ -200,7 +200,7 @@ public class DialogueHandler : MonoBehaviour{
             if (i < input.Length) textHolder.maxVisibleCharacters++;
         }
         _currentLineFinished = true;
-        Debug.Log("LINE FINISHED");
+        //Debug.Log("LINE FINISHED");
     }
 
     /// <summary>

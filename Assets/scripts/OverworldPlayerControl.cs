@@ -34,7 +34,7 @@ public class PlayerControl : MonoBehaviour {
 
     //overworld menu navigation-related
     private Color _colorIdle = Color.white;
-    private Color _colorHighlight = new Color(1, 1, 0, 1);
+    private Color _colorHighlight = new(1, 1, 0, 1);
 
     public GameObject OverworldMenu;
     public TextMeshProUGUI[] options = new TextMeshProUGUI[3];
@@ -61,7 +61,7 @@ public class PlayerControl : MonoBehaviour {
         GameEvents.Instance.OnGameStateChange += UpdateActionMap;
     }
     private void OnDestroy() {
-        GameEvents.Instance.OnGameStateChange -= UpdateActionMap;
+        if(GameEvents.Instance != null) GameEvents.Instance.OnGameStateChange -= UpdateActionMap;
     }
 
     //****************************//
@@ -108,8 +108,10 @@ public class PlayerControl : MonoBehaviour {
 
     //This calls the GameManager and then UpdateGameState acts upon a call of its delegate, I did this in case in the future I have other systems which rely on knowing the overworld menu was opened
     public void OpenMenu(InputAction.CallbackContext context) {
-        if (context.performed) GameManager.Instance.ChangeGameState(GameState.overworldMenu);
-        OverworldMenu.SetActive(true);
+        if (context.performed) {
+            GameManager.Instance.ChangeGameState(GameState.overworldMenu);
+            OverworldMenu.SetActive(true);
+        }
     }
 
     public void OnCloseMenu(InputAction.CallbackContext context) {
@@ -186,7 +188,7 @@ public class PlayerControl : MonoBehaviour {
             _animator.SetBool("isMoving", false);
             _animator.SetFloat("yDir", _movementInput.y);
         }
-        Debug.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
+        //.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
     }
 
     /// <summary>
