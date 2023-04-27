@@ -100,7 +100,7 @@ public class OverworldMenuManager : MonoBehaviour{
 
     public void OnCloseMenu(InputAction.CallbackContext context) {
         if (context.performed) {
-            _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle;
+            if(_currentColumn != -1 && _currentRow != -1) _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle;
             _currentRow = -1;
             _currentColumn = -1;
             _previousRow = 0;
@@ -110,7 +110,19 @@ public class OverworldMenuManager : MonoBehaviour{
         }
     }
 
-    public void OnSelect(InputAction.CallbackContext context) {
+    public void OnReturn(InputAction.CallbackContext context) {
+        if (context.performed) {
+            if (_currentColumn != -1 && _currentRow != -1) _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle;
+            _currentRow = -1;
+            _currentColumn = -1;
+            _previousRow = 0;
+            _previousColumn = 0;
+            _menus[_currentPage].SetActive(false);
+            if(_currentPage == 0) GameManager.Instance.ChangeGameState(GameState.overworld); //in case the player presses Q when they're already on the general menu
+            _currentPage = 0;
+        }
+    }
+            public void OnSelect(InputAction.CallbackContext context) {
         if (context.performed) {
             switch (_currentPage) {
                 case 0: //general menu
