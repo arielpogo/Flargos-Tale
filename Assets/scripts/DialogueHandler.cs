@@ -20,7 +20,7 @@ public class DialogueHandler : MonoBehaviour{
     private Vector4 _noPortraitMargins = new(0.0f, 4.0f, 0.0f, 0.0f);
 
     //dialogue writing-related
-    const float FONTSIZE = 25.0F;
+    const float FONTSIZE = 18.0F;
     const float DELAY = 0.07F; //Default delay, will change with custom markup in the future.
 
     private bool _currentLineFinished = false;

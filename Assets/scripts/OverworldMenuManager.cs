@@ -27,11 +27,11 @@ public class OverworldMenuManager : MonoBehaviour{
                                                              //_overworldMenuPages[p].Columns[c] <- select a column in a page
                                                              //_overworldMenuPages[p].Columns[c].Rows[r] <- select a row (an actual TextMeshProUGui)
 
+    //TODO: When I learn graphs (2D linked lists), use that instead. This is a braindead approach.
+
     private Vector2 _navDirection;
     private int _currentPage = 0;
-    private int _previousColumn = 0; //this is so when selecting an option for the first time, it doesn't try reverting the color of the previous, "-1th" option
     private int _currentColumn = -1;
-    private int _previousRow = 0; //ditto
     private int _currentRow = -1;
 
     //****************************//
@@ -40,6 +40,16 @@ public class OverworldMenuManager : MonoBehaviour{
     //                            //
     //****************************//
 
+    [SerializeField] private TextMeshProUGUI row;
+    [SerializeField] private TextMeshProUGUI column;
+    [SerializeField] private TextMeshProUGUI page;
+
+    private void FixedUpdate() {
+        row.text = string.Concat("Row: ", _currentRow.ToString());
+        column.text = string.Concat("Column: ", _currentColumn.ToString());
+        page.text = string.Concat("Page: ", _currentPage.ToString());
+    }
+
     public void OnNavigate(InputAction.CallbackContext context) {
         if (context.performed) {
             _navDirection = context.ReadValue<Vector2>();
@@ -47,17 +57,7 @@ public class OverworldMenuManager : MonoBehaviour{
             _navDirection.y = Math.Sign(_navDirection.y);
 
             //fancy wraparound selection, when nothing is selected
-            if (_currentRow == -1) {
-                if (_navDirection.y > 0) { //if you press W, then the current selection is set to the bottom left
-                    _currentColumn = 0;
-                    _currentRow = _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows.Length - 1;
-                }
-                else if (_navDirection.y < 0) { //if you press S, then the current selection is set to the top left
-                    _currentColumn = 0;
-                    _currentRow = 0;
-                }
-            }
-            else if (_currentColumn == -1) {
+            if (_currentColumn == -1 || _currentRow == -1) {
                 if (_navDirection.x > 0) { //if you press D, current selection is set to top left
                     _currentRow = 0;
                     _currentColumn = 0;
@@ -66,26 +66,28 @@ public class OverworldMenuManager : MonoBehaviour{
                     _currentRow = 0;
                     _currentColumn = _overworldMenuPages[_currentPage].Columns.Length - 1;
                 }
+                else if (_navDirection.y > 0) { //if you press W, then the current selection is set to the bottom left
+                    _currentColumn = 0;
+                    _currentRow = _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows.Length - 1;
+                }
+                else if (_navDirection.y < 0) { //if you press S, then the current selection is set to the top left
+                    _currentColumn = 0;
+                    _currentRow = 0;
+                }
             }
             else {
+                _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle; //decolor, in case we do move
                 //changing column/row
-                if (_navDirection.x != 0) {
-                    _previousColumn = _currentColumn;
-                    _currentColumn += (int)_navDirection.x;
-                }
-                if (_navDirection.y != 0) {
-                    _previousRow = _currentRow;
-                    _currentRow -= (int)_navDirection.y; //minus because the input vector is increasing upwards, while the list goes from top to bottom (increasing index downwards)
-                }
+                if (_navDirection.x != 0) _currentColumn += (int)_navDirection.x;
+
+                if (_navDirection.y != 0) _currentRow -= (int)_navDirection.y; //minus because the input vector is increasing upwards, while the list goes from top to bottom (increasing index downwards)
 
                 //wrap around
-                if (_currentRow > _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows.Length - 1) _currentRow = 0; //go beyond bottom, go to top
-                else if (_currentRow < 0) _currentRow = _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows.Length - 1; //go beyond top, go to bottom
                 if (_currentColumn > _overworldMenuPages[_currentPage].Columns.Length - 1) _currentColumn = 0; //go beyond right, go to left
                 else if (_currentColumn < 0) _currentColumn = _overworldMenuPages[_currentPage].Columns.Length - 1; //go beyond left, go to right
+                if (_currentRow > _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows.Length -1) _currentRow = 0; //go beyond bottom, go to top
+                else if (_currentRow < 0) _currentRow = _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows.Length - 1; //go beyond top, go to bottom
             }
-
-            _overworldMenuPages[_currentPage].Columns[_previousColumn].Rows[_previousRow].color = _colorIdle;
             _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorHighlight;
         }
     }
@@ -103,9 +105,8 @@ public class OverworldMenuManager : MonoBehaviour{
             if(_currentColumn != -1 && _currentRow != -1) _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle;
             _currentRow = -1;
             _currentColumn = -1;
-            _previousRow = 0;
-            _previousColumn = 0;
             for (int i = 0; i < _menus.Length; i++) _menus[i].SetActive(false);
+            _currentPage = 0;
             GameManager.Instance.ChangeGameState(GameState.overworld);
         }
     }
@@ -115,8 +116,6 @@ public class OverworldMenuManager : MonoBehaviour{
             if (_currentColumn != -1 && _currentRow != -1) _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle;
             _currentRow = -1;
             _currentColumn = -1;
-            _previousRow = 0;
-            _previousColumn = 0;
             _menus[_currentPage].SetActive(false);
             if(_currentPage == 0) GameManager.Instance.ChangeGameState(GameState.overworld); //in case the player presses Q when they're already on the general menu
             _currentPage = 0;
@@ -126,8 +125,11 @@ public class OverworldMenuManager : MonoBehaviour{
         if (context.performed) {
             switch (_currentPage) {
                 case 0: //general menu
+                    _overworldMenuPages[_currentPage].Columns[_currentColumn].Rows[_currentRow].color = _colorIdle;
                     _currentPage = _currentRow + 1;
                     _menus[_currentRow + 1].SetActive(true);
+                    _currentColumn = -1;
+                    _currentRow = -1;
                     break;
                 case 1:
                     break;
