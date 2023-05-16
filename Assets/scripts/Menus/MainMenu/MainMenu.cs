@@ -42,6 +42,9 @@ public class MainMenuManager : NavigableMenu{
         
     }
 
+    public override void OnReturn(InputValue value) { 
+    }
+
 
     // Handles when an option is selected
     public override void OnSubmit() {

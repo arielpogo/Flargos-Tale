@@ -90,7 +90,7 @@ public abstract class NavigableMenu : MonoBehaviour {
         TotalMenuClose();
     }
 
-    //for when we want the whole menu to close, crashing down to the base menu
+    //for when we want the whole menu to close, subsequently calling all the way down
     public virtual void TotalMenuClose() {
         if (_previousMenu == null) {
             GameManager.Instance.ChangeGameState(_returnGameState);
