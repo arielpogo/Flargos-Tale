@@ -17,16 +17,13 @@ public class GameManager : PersistentSingleton<GameManager> {
     /// Handles the changes in gameplay when the game state changes
     /// </summary>
     /// <param name="newState">The state to change the game to</param>
-    /// <exception cref="ArgumentOutOfRangeException">When a GameState without logic is passed</exception>
     public void ChangeGameState(GameState newState) {
         if (newState == MasterGameState) return; //no change needed
         MasterGameState = newState;
         GameEvents.Instance.OnGameStateChange?.Invoke(newState);
     }
 
-    /// <summary>
-    /// Determines whether to immediately show intro cutscene or show the save screen
-    /// </summary>
+    //Determines whether to immediately show intro cutscene or show the save screen
     private void HandleStartup() {
         Screen.SetResolution(640, 480, false);
         if (SaveManager.Instance.SaveFiles.Length == 0) {

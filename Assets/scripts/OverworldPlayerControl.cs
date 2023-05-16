@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 //Handles movement for the player
-public class PlayerControl : MonoBehaviour {
+public class OverworldPlayerControl : MonoBehaviour {
 
     //****************************//
     //                            //
@@ -31,6 +29,8 @@ public class PlayerControl : MonoBehaviour {
     private PlayerInput _playerInput;
 
     private int _primaryDir = 2; //1 = a or d, 2 = w or s
+
+    [SerializeField] private GameObject _generalMenuPrefab;
 
     //****************************//
     //                            //
@@ -58,18 +58,15 @@ public class PlayerControl : MonoBehaviour {
     //                            //
     //****************************//
 
-    public void OnMove(InputAction.CallbackContext context) {
-        if (context.performed) _movementInput = context.ReadValue<Vector2>(); //the Player Input component will invoke and pass WASD/arrow key keypresses
-        else _movementInput = Vector2.zero; 
+    public void OnMove(InputValue value) {
+        _movementInput = value.Get<Vector2>();
     }
 
-    public void OnInteract(InputAction.CallbackContext context) {
-        if (context.performed){
-            //raycast in the direction the sprite is looking, filtering for Raycast Interactables
-            RaycastHit2D results = Physics2D.Raycast(_rigidBody.position, _overworldLookDirection, _interactDistance, LayerMask.GetMask("Raycast Interactable"));
-            if (results.transform == null) return;
-            results.transform.GetComponent<BaseInteractableClass>().Interact();
-        }
+    public void OnInteract() {
+        //raycast in the direction the sprite is looking, filtering for Raycast Interactables
+        RaycastHit2D results = Physics2D.Raycast(_rigidBody.position, _overworldLookDirection, _interactDistance, LayerMask.GetMask("Raycast Interactable"));
+        if (results.transform == null) return;
+        results.transform.GetComponent<BaseInteractableClass>().Interact();
     }
 
     //****************************//
@@ -152,6 +149,10 @@ public class PlayerControl : MonoBehaviour {
     //            MISC            //
     //                            //
     //****************************//
+
+    public void OnOpenMenu() {
+         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null, GameState.overworld); //previous menu == null because this class isn't a navigatablemenu
+    }
 
     private void UpdateActionMap(GameState NewGameState) {
         switch (NewGameState) {

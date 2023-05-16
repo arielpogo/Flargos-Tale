@@ -20,7 +20,7 @@ public class DialogueHandler : MonoBehaviour{
     private Vector4 _noPortraitMargins = new(0.0f, 4.0f, 0.0f, 0.0f);
 
     //dialogue writing-related
-    const float FONTSIZE = 18.0F;
+    const float FONTSIZE = 25.0F;
     const float DELAY = 0.07F; //Default delay, will change with custom markup in the future.
 
     private bool _currentLineFinished = false;
@@ -218,12 +218,9 @@ public class DialogueHandler : MonoBehaviour{
     //                            //
     //****************************//
 
-    // Called by Unity input events
-    public void Proceed(InputAction.CallbackContext context) {
-        if (context.performed) {
-            if (!_currentLineFinished) _skipText = true;
-            else _proceed = true;
-        }
+    public void OnProceed() {
+        if (!_currentLineFinished) _skipText = true;
+        else _proceed = true;
     }
 
     // Only called by cutscene signals. Because they are predictable, we do not need to check them.
@@ -233,8 +230,7 @@ public class DialogueHandler : MonoBehaviour{
     }
     
     //called by Unity events
-    public void Decide(InputAction.CallbackContext context){
-    	if(context.performed) _decisionDirection = context.ReadValue<Vector2>();
-	else _decisionDirection = Vector2.zero;
+    public void Decide(InputValue value){
+    	_decisionDirection = value.Get<Vector2>();
     }
 }
