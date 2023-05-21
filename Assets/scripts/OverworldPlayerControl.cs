@@ -28,6 +28,11 @@ public class OverworldPlayerControl : MonoBehaviour {
     private SpriteRenderer _spriteRenderer;
     private PlayerInput _playerInput;
 
+    private Animator _shadowAnimator;
+    private SpriteRenderer _shadowSpriteRenderer;
+    private Rigidbody2D _shadowRigidBody;
+    private Vector2 _shadowOffset = new(0, -.88f);
+
     private int _primaryDir = 2; //1 = a or d, 2 = w or s
 
     [SerializeField] private GameObject _generalMenuPrefab;
@@ -44,6 +49,10 @@ public class OverworldPlayerControl : MonoBehaviour {
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _playerInput = GetComponent<PlayerInput>();
+
+        _shadowAnimator = GameObject.FindWithTag("PlayerShadow").GetComponent<Animator>();
+        _shadowSpriteRenderer = GameObject.FindWithTag("PlayerShadow").GetComponent<SpriteRenderer>();
+        _shadowRigidBody = GameObject.FindWithTag("PlayerShadow").GetComponent<Rigidbody2D>();
 
         GameEvents.Instance.OnGameStateChange += UpdateActionMap;
     }
@@ -91,18 +100,23 @@ public class OverworldPlayerControl : MonoBehaviour {
                 }
             }
 
+            _shadowAnimator.SetBool("isMoving", _animator.GetBool("isMoving"));
+
             if (_primaryDir == 1 && Math.Abs(_movementInput.x) < Math.Abs(_movementInput.y)) _primaryDir = 2;  //if x is supposed main direction, but x key isn't held, y new direction
             else if (_primaryDir == 2 && Math.Abs(_movementInput.y) < Math.Abs(_movementInput.x)) _primaryDir = 1;  //vise versa
 
             //because we have separate y direction sprites (facing forward, backward), we do direction logic in animation editor
             _animator.SetFloat("yDir", _movementInput.y);
+            _shadowAnimator.SetFloat("yDir", _movementInput.y);
 
             //and because we have only one x direction sprite, we do flipping logic here
             if ((_primaryDir == 1 && _movementInput.x > 0) || (_primaryDir != 1)) {
                 _spriteRenderer.flipX = false;
+                _shadowSpriteRenderer.flipX = false;
             }
             else if (_primaryDir == 1 && _movementInput.x < 0) {
                 _spriteRenderer.flipX = true;
+                _shadowSpriteRenderer.flipX = true;
             }
 
             switch (_primaryDir) {
@@ -116,10 +130,13 @@ public class OverworldPlayerControl : MonoBehaviour {
                     break;
             }
             _animator.SetInteger("primaryDir", _primaryDir);
+            _shadowAnimator.SetInteger("primaryDir", _primaryDir);
         }
         else {
             _animator.SetBool("isMoving", false);
+            _shadowAnimator.SetBool("isMoving", false);
             _animator.SetFloat("yDir", _movementInput.y);
+            _shadowAnimator.SetFloat("yDir", _movementInput.y);
         }
         //.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
     }
@@ -139,6 +156,7 @@ public class OverworldPlayerControl : MonoBehaviour {
 
         if (count == 0) { //if 0 collisions, move
             _rigidBody.MovePosition(_rigidBody.position + _moveSpeed * Time.fixedDeltaTime * direction); //add to the current position: the movement input * desired player speed * time = vector
+            _shadowRigidBody.MovePosition(_rigidBody.position + _moveSpeed * Time.fixedDeltaTime * direction +_shadowOffset);
             return true;
         }
         else return false;
