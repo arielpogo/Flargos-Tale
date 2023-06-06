@@ -6,9 +6,9 @@ using UnityEngine;
 using XNode;
 
 /// <summary>
-/// A screen of dialogue which has no choices for the player to make, in a cutscene.
+/// A screen of dialogue which has no choices for the player to make, not in a container.
 /// </summary>
-public class CutsceneDialogueNode : BaseDialogueNode {
+public class FloatingDialogueNode : BaseDialogueNode {
     [Input] public int Previous;
     [Output] public int Next;
     public string dialogue;

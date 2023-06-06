@@ -79,7 +79,7 @@ public class MainMenuManager : NavigableMenu{
     public void EndCutscene() {
         _introCutsceneCanvas.SetActive(false);
         _introCutsceneTimeline.SetActive(false);
-        GameManager.Instance.ChangeGameState(GameState.mainMenu);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
     private void GoToMainMenu(GameState newGameState) {
         if (newGameState == GameState.mainMenu) {

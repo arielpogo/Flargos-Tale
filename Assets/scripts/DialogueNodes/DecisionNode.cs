@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Rendering;
+﻿using UnityEngine;
 using XNode;
 
 /// <summary>
@@ -13,6 +10,15 @@ public class DecisionNode : BaseDialogueNode {
     [Output] public int Outcome2;
     [Output] public int Outcome3;
     [Output] public int Outcome4;
+
+    public string[] GetDecisions() {
+        string[] decisions = new string[4];
+        decisions[0] = decision1;
+        decisions[1] = decision2;
+        decisions[2] = decision3;
+        decisions[3] = decision4;
+        return decisions;
+    }
 
     //TODO: Dynamic ports
     public string decision1, decision2, decision3, decision4;

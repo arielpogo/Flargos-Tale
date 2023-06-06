@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.Windows;
 using XNode;
 
 public class DialogueHandler : MonoBehaviour{
@@ -13,6 +16,9 @@ public class DialogueHandler : MonoBehaviour{
     //         VARIABLES          //
     //                            //
     //****************************//
+
+    //dialogue box prefabs
+    [SerializeField] private GameObject[] _dialogueBoxPrefabs = new GameObject[5];
 
     //dialogue sequencing-related
     private BaseDialogueNode _currentNode;
@@ -42,42 +48,54 @@ public class DialogueHandler : MonoBehaviour{
     /// Begins a dialogue sequence.
     /// </summary>
     /// <param name="graph">The DialogueGraph to read from.</param>
-    /// <param name="textBox">The TMP text box to write to.</param>
-    /// <param name="dialogueBoxPortrait">The Unity image component which will hold the portrait (or other image).</param>
-    /// <param name="dialogueBox">(Optional) The dialogue box which is being used.</param>
     /// <exception cref="NotImplementedException">Temporarily for the node types I haven't implemented functionality yet.</exception>
-    public IEnumerator DialogueSequence(DialogueGraph graph, TMP_Text textBox, Image dialogueBoxPortrait, GameObject dialogueBox = null) {
+    public IEnumerator DialogueSequence(DialogueGraph graph) {
         GameManager.Instance.ChangeGameState(GameState.dialogue);
         _currentNode = graph.GetStartNode();
         GoToNextNodeViaExit("Next"); //go to first node from the start node
 
         while (_currentNode is not EndNode) {
+            Sprite portrait = _currentNode.GetPortrait();
+
+            //spawn the dialogue box
+            GameObject dialogueBox = null;
+            if (_currentNode is DialogueBoxNode || _currentNode is FloatingDialogueNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[0], GameManager.Instance.player.transform); //0 = default box
+            else if (_currentNode is DecisionNode decisionNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[decisionNode.GetDecisions().Length]); //1 = 1 decision; 2 = 2 etc.
+
+            TMP_Text[] textBoxes = null;
+            Image dialogueBoxPortrait = null;
+            if (dialogueBox) { 
+                textBoxes = new TMP_Text[dialogueBox.transform.Find("DialoguePanel/text").childCount];
+                //gets the text box components in the children of the text gameobject in the dialogue panel of the dialogue box, in order (message, d1-d4)
+                for (int i = 0; i < dialogueBox.transform.Find("DialoguePanel/text").childCount; i++) textBoxes[i] = dialogueBox.transform.Find("DialoguePanel/text").GetChild(i).GetComponent<TMP_Text>();
+
+                dialogueBoxPortrait = dialogueBox.transform.Find("DialoguePanel/Portrait").gameObject.GetComponent<Image>();
+            }
+
+            //handle the dialogue box and sequencing
             switch (_currentNode) {
                 case DialogueBoxNode _currentNode: {
-                        Sprite portrait = _currentNode.GetPortrait();
-
                         if (portrait) { //if there is a portrait
                             dialogueBoxPortrait.sprite = portrait;
                             dialogueBoxPortrait.color = Color.white;
-                            textBox.margin = _portraitMargins;
+                            textBoxes[0].margin = _portraitMargins;
                         }
                         else {
-                            textBox.margin = _noPortraitMargins;
+                            textBoxes[0].margin = _noPortraitMargins;
                             dialogueBoxPortrait.color = Color.clear;
                         }
 
-                        WriteText(_currentNode.GetDialogue(), textBox, _currentNode.GetFontAsset());
+                        WriteText(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset());
                         yield return new WaitUntil(() => _currentLineFinished);
                         yield return new WaitUntil(() => _proceed); //wait until true
                         _proceed = false;
                         GoToNextNodeViaExit("Next");
-
                         break;
                     }
-                case CutsceneDialogueNode _currentNode: { //we don't care if there is an image or not, do not touch the dialogue box
-                        dialogueBoxPortrait.sprite = _currentNode.GetPortrait();
+                case FloatingDialogueNode _currentNode: { //we don't care if there is an image or not, do not touch the dialogue box
+                        dialogueBoxPortrait.sprite = portrait;
 
-                        WriteText(_currentNode.GetDialogue(), textBox, _currentNode.GetFontAsset());
+                        WriteText(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset());
                         yield return new WaitUntil(() => _currentLineFinished);
                         yield return new WaitUntil(() => _proceed); //wait until true
                         _proceed = false;
@@ -86,16 +104,29 @@ public class DialogueHandler : MonoBehaviour{
                     }
 
                 case DecisionNode _currentNode:
-                    //TODO: Call WriteDecision on writer
-                    //GoToNextNodeViaExit("Decision1"); etc.
-                   throw new NotImplementedException();
+                    if (portrait) { //if there is a portrait
+                        dialogueBoxPortrait.sprite = portrait;
+                        dialogueBoxPortrait.color = Color.white;
+                        textBoxes[0].margin = _portraitMargins;
+                    }
+                    else {
+                        textBoxes[0].margin = _noPortraitMargins;
+                        dialogueBoxPortrait.color = Color.clear;
+                    }
+
+                    WriteDecision(_currentNode.GetDialogue(), _currentNode.GetDecisions(), textBoxes, _currentNode.GetFontAsset());
+                    yield return new WaitUntil(() => _currentLineFinished);
+                    yield return new WaitUntil(() => _proceed); //wait until true
+                    _proceed = false;
+                    GoToNextNodeViaExit("Next");
+                    break;
 
                 default:
                     throw new NotImplementedException();                    
             }
+            if (dialogueBox) Destroy(dialogueBox); //in case we don't want to destroy it, for example the start intro
         }
         _currentNode = null;
-        if (dialogueBox) Destroy(dialogueBox); //in case we don't want to destroy it, for example the start intro
         GameManager.Instance.ChangeGameState(GameState.overworld);
     }
 
@@ -126,9 +157,9 @@ public class DialogueHandler : MonoBehaviour{
     /// <param name="input">String to write.</param>
     /// <param name="textHolder">The TMP Text component to write to.</param>
     /// <param name="fontAsset">The font to use.</param>
-    private void WriteText(string input, TMP_Text textHolder, TMP_FontAsset fontAsset) {
-        textHolder.text = "";
-        StartCoroutine(TypeWriter(input, textHolder, fontAsset));
+    private void WriteText(string input, TMP_Text textBox, TMP_FontAsset fontAsset) {
+        textBox.text = "";
+        StartCoroutine(TypeWriter(input, textBox, fontAsset));
     }
 	
     private IEnumerator TypeWriter(string input, TMP_Text textHolder, TMP_FontAsset fontAsset) {
@@ -206,18 +237,24 @@ public class DialogueHandler : MonoBehaviour{
     /// <summary>
     /// Displays a decision.
     /// </summary>
-    /** public void WriteDecision(List<string> decisions, TMP_Text textHolder, TMP_FontAsset fontAsset) {
-         //Will handle drawing the text for one to four decisions, it will display around a WASD sprite which corresponds to pressing that button to choose that deicison (and then pressing it again to confirm).
-         //The interaction will NOT be handled here. This is just for writing.
-     }
-    **/
+    public void WriteDecision(string input, string[] decisions, TMP_Text[] textBoxes, TMP_FontAsset fontAsset) {
+        //Will handle drawing the text for one to four decisions, it will display around a WASD sprite which corresponds to pressing that button to choose that deicison (and then pressing it again to confirm).
+        //The interaction will NOT be handled here. This is just for writing.
+        textBoxes[0].text = "";
+        StartCoroutine(TypeWriter(input, textBoxes[0], fontAsset));
+        
+        for(int i = 0; i < decisions.Length; i++) {
+
+        }
+    }
 
     //****************************//
     //                            //
     //           INPUT            //
     //                            //
     //****************************//
-
+    
+    //called by Unity events
     public void OnProceed() {
         if (!_currentLineFinished) _skipText = true;
         else _proceed = true;

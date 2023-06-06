@@ -1,6 +1,7 @@
 using System;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// The game manager handles the gamestate and the startup.
@@ -33,6 +34,10 @@ public class GameManager : PersistentSingleton<GameManager> {
             ChangeGameState(GameState.mainMenu);
         }
     }
+
+    private void SetBattle() {
+
+    }
 }
 
 [Serializable]
@@ -43,5 +48,6 @@ public enum GameState {
     overworldMenu = 3,
     dialogue = 4,
     cutscene = 5,
-    cutscene_with_control = 6
+    cutscene_with_control = 6,
+    battle = 7
 }

@@ -5,14 +5,20 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/scenes/error.unity
-    guid: 5e3075665805b8e49a88b0445cd75f50
   - enabled: 1
     path: Assets/scenes/mainMenu.unity
     guid: 0901f9c302b1b714885ad7951ca42e1e
   - enabled: 1
+    path: Assets/scenes/bpc00.unity
+    guid: 59adec3f701aa2644881862cb329099f
+  - enabled: 1
     path: Assets/scenes/mogo.unity
     guid: 7db2162e5820588479f336bcaac13089
+  - enabled: 1
+    path: Assets/scenes/lab.unity
+    guid: 124072deb52ba5c45aae3bf241ac060d
+  - enabled: 1
+    path: Assets/scenes/battle.unity
+    guid: 9f951494a7a809445bab6f3d2d1c32ca
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: ca63540c203ccd84dab36b23cacc038c, type: 2}
