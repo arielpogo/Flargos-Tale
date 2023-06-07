@@ -78,14 +78,15 @@ public class DialogueHandler : MonoBehaviour{
                         if (portrait) { //if there is a portrait
                             dialogueBoxPortrait.sprite = portrait;
                             dialogueBoxPortrait.color = Color.white;
-                            textBoxes[0].margin = _portraitMargins;
+                            textBoxes[0].margin = _portraitMargins; //textboxes[0] is the main dialogue box
                         }
                         else {
                             textBoxes[0].margin = _noPortraitMargins;
                             dialogueBoxPortrait.color = Color.clear;
                         }
 
-                        WriteText(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset());
+                        textBox.text = "";
+                        StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
                         yield return new WaitUntil(() => _currentLineFinished);
                         yield return new WaitUntil(() => _proceed); //wait until true
                         _proceed = false;
@@ -94,8 +95,8 @@ public class DialogueHandler : MonoBehaviour{
                     }
                 case FloatingDialogueNode _currentNode: { //we don't care if there is an image or not, do not touch the dialogue box
                         dialogueBoxPortrait.sprite = portrait;
-
-                        WriteText(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset());
+                        textBox.text = "";
+                        StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
                         yield return new WaitUntil(() => _currentLineFinished);
                         yield return new WaitUntil(() => _proceed); //wait until true
                         _proceed = false;
@@ -113,9 +114,14 @@ public class DialogueHandler : MonoBehaviour{
                         textBoxes[0].margin = _noPortraitMargins;
                         dialogueBoxPortrait.color = Color.clear;
                     }
-
-                    WriteDecision(_currentNode.GetDialogue(), _currentNode.GetDecisions(), textBoxes, _currentNode.GetFontAsset());
+                    
+                    textBoxes[0].text = "";
+                    StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], fontAsset));
                     yield return new WaitUntil(() => _currentLineFinished);
+
+                    for(int i = 0; i < decisions.Length; i++) {}
+
+                    
                     yield return new WaitUntil(() => _proceed); //wait until true
                     _proceed = false;
                     GoToNextNodeViaExit("Next");
@@ -152,16 +158,6 @@ public class DialogueHandler : MonoBehaviour{
     //                            //
     //****************************//
 
-    /// Writes one screen of dialogue to the textHolder.
-    /// </summary>
-    /// <param name="input">String to write.</param>
-    /// <param name="textHolder">The TMP Text component to write to.</param>
-    /// <param name="fontAsset">The font to use.</param>
-    private void WriteText(string input, TMP_Text textBox, TMP_FontAsset fontAsset) {
-        textBox.text = "";
-        StartCoroutine(TypeWriter(input, textBox, fontAsset));
-    }
-	
     private IEnumerator TypeWriter(string input, TMP_Text textHolder, TMP_FontAsset fontAsset) {
         _currentLineFinished = false;
         _skipText = false;
@@ -232,20 +228,6 @@ public class DialogueHandler : MonoBehaviour{
         }
         _currentLineFinished = true;
         //Debug.Log("LINE FINISHED");
-    }
-
-    /// <summary>
-    /// Displays a decision.
-    /// </summary>
-    public void WriteDecision(string input, string[] decisions, TMP_Text[] textBoxes, TMP_FontAsset fontAsset) {
-        //Will handle drawing the text for one to four decisions, it will display around a WASD sprite which corresponds to pressing that button to choose that deicison (and then pressing it again to confirm).
-        //The interaction will NOT be handled here. This is just for writing.
-        textBoxes[0].text = "";
-        StartCoroutine(TypeWriter(input, textBoxes[0], fontAsset));
-        
-        for(int i = 0; i < decisions.Length; i++) {
-
-        }
     }
 
     //****************************//
