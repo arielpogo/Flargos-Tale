@@ -10,8 +10,17 @@ public class GameManager : PersistentSingleton<GameManager> {
     public GameState MasterGameState { get; private set; }
     public GameObject player; //set in the editor
 
+    public EnemyBattle NextEnemyBattle { get; private set; }
+
     private void Start() {
         if(SceneManager.GetActiveScene().name == "mainMenu") HandleStartup();
+        GameEvents.Instance.StartBattle += SetBattle;
+    }
+
+    private void OnDestroy() {
+        if (GameEvents.Instance != null) {
+            GameEvents.Instance.StartBattle -= SetBattle;
+        }
     }
 
     /// <summary>
@@ -35,9 +44,11 @@ public class GameManager : PersistentSingleton<GameManager> {
         }
     }
 
-    private void SetBattle() {
-
+    private void SetBattle(EnemyBattle Enemy) {
+        NextEnemyBattle = Enemy;
+        ChangeGameState(GameState.battle);
     }
+
 }
 
 [Serializable]

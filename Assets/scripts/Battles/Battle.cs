@@ -4,7 +4,21 @@ using UnityEngine;
 
 public class Battle : MonoBehaviour {
     public string Name;
-    public Sprite Sprite;
+    public Sprite DefaultSprite;
     public int Health;
     
+    virtual public void Fight() {
+
+    }
+    virtual public void Act() {
+        
+    }
+
+    virtual public void Item() {
+
+    }
+
+    virtual public void Flee() {
+        GameEvents.Instance.EndBattle.Invoke();
+    }
 }

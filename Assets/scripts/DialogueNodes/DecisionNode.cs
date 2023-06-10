@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using XNode;
 
 /// <summary>
@@ -10,16 +11,24 @@ public class DecisionNode : BaseDialogueNode {
     [Output] public int Outcome2;
     [Output] public int Outcome3;
     [Output] public int Outcome4;
+    public string dialogue;
+    public TMP_FontAsset fontAsset;
+    public string[] Decisions = new string[4];
+    public bool ExtendedSpaceForDecisions = false;
 
-    public string[] GetDecisions() {
-        string[] decisions = new string[4];
-        decisions[0] = decision1;
-        decisions[1] = decision2;
-        decisions[2] = decision3;
-        decisions[3] = decision4;
-        return decisions;
+    public override string GetDialogue() {
+        return dialogue;
     }
 
-    //TODO: Dynamic ports
-    public string decision1, decision2, decision3, decision4;
+    public override TMP_FontAsset GetFontAsset() {
+        return fontAsset;
+    }
+
+    public string[] GetDecisions() {
+        int i = 0;
+        foreach (string s in Decisions) if (!string.IsNullOrEmpty(s)) i++; //count empty decisions
+        string[] nonEmptyDecisions = new string[i]; //new string array
+        for (i = 0; i < 4; i++) if (!string.IsNullOrEmpty(Decisions[i])) nonEmptyDecisions[i] = Decisions[i]; //put them in. In case not as upward in the list as can be it's ok
+        return nonEmptyDecisions;
+    }
 }
