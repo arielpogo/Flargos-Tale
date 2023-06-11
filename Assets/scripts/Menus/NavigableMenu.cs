@@ -29,7 +29,7 @@ public abstract class NavigableMenu : MonoBehaviour {
     protected Color _colorHighlight = new(1, 1, 0, 1);
 
     /// <summary>
-    /// Called by the ExtensionMethod.InstantiateNavigableMenu() function
+    /// Called by the Factory.InstantiateNavigableMenu() function
     /// </summary>
     public void Setup(NavigableMenu previousMenu, GameState returnGameState) {
         _previousMenu = previousMenu;
@@ -40,6 +40,7 @@ public abstract class NavigableMenu : MonoBehaviour {
     /// When WASD is pressed, what to do?
     /// </summary>
     public virtual void OnNavigate(InputValue value) {
+        Debug.Log("On navigate");
         if (enabled) {
             _navDirection = value.Get<Vector2>();
             _navDirection.x = Math.Sign(_navDirection.x); //unit vector
@@ -47,21 +48,21 @@ public abstract class NavigableMenu : MonoBehaviour {
 
             //fancy wraparound selection, when nothing is selected
             if (_currentColumn == -1 || _currentRow == -1) {
-                if (_navDirection.x > 0) { //if you press D, current selection is set to top left
-                    _currentRow = 0;
-                    _currentColumn = 0;
-                }
-                else if (_navDirection.x < 0) {//if you press A, current selection is set to top right
-                    _currentRow = 0;
-                    _currentColumn = _columns.Length - 1;
-                }
-                else if (_navDirection.y > 0) { //if you press W, then the current selection is set to the bottom left
+                if (_navDirection.y > 0) { //if you press W, then the current selection is set to the bottom left
                     _currentColumn = 0;
                     _currentRow = _columns[_currentColumn].Rows.Length - 1;
                 }
                 else if (_navDirection.y < 0) { //if you press S, then the current selection is set to the top left
                     _currentColumn = 0;
                     _currentRow = 0;
+                }
+                else if (_navDirection.x > 0) { //if you press D, current selection is set to top left
+                    _currentRow = 0;
+                    _currentColumn = 0;
+                }
+                else if (_navDirection.x < 0) {//if you press A, current selection is set to top right
+                    _currentRow = 0;
+                    _currentColumn = _columns.Length - 1;
                 }
             }
             else {
