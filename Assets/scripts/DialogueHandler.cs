@@ -1,15 +1,10 @@
-using Cinemachine.Utility;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
-using UnityEngine.Windows;
 using XNode;
 
 public class DialogueHandler : MonoBehaviour {
@@ -216,25 +211,13 @@ public class DialogueHandler : MonoBehaviour {
         textHolder.font = fontAsset;
         textHolder.fontSize = FONTSIZE;
 
-        //Splits into a list of all words, including commands
-        string[] words = input.Split(' ');
-        string _actualText = String.Empty;
-
-        //rebuilds the string without commands
-        for (int i = 0; i < words.Length; i++) {
-            if (words[i][0] != '|') { //exclude commands
-                _actualText += words[i];
-                _actualText += " ";
-            }
-        }
+        string _actualText = input;
+        _actualText = Regex.Replace(_actualText, @"(\|([A-Z]\d*))", String.Empty);
         _actualText = _actualText.TrimEnd(); //removes trailing whitespace
 
         //Sets the text to the text (without commands), but renders 0 of them
         textHolder.text = _actualText;
         textHolder.maxVisibleCharacters = 0;
-
-        char command;
-        string commandParameters = string.Empty;
 
         ///Ok, at this point we have two strings. What was actually inputted into the node (string input) and the modified version without any commands (string _actualText). We're looping through what was actually inputted, "typing" out the characters in _actualText 1:1 with the input. When a command is encountered, the 1:1 is broken, the command is handled (thus i goes ahead of maxVisibleCharacters), then maxInputCharacters continues to go along with the input.
         for (int i = 0; i < input.Length; i++) {
@@ -243,39 +226,32 @@ public class DialogueHandler : MonoBehaviour {
                 if (i + 1 < input.Length) i++; //if a pipe is the last thing in a string, break
                 else break;
 
-                command = input[i];
+                char command = input[i];
+                string commandParameters = string.Empty;
 
                 //Debug.Log(input[i]);
                 if (i + 1 < input.Length) i++; //if the command is the last thing in the string, break
                 else break;
 
-                switch (command) {
-                    case 'D': //set delay
-                        if (_skipText) break; //don't bother changing delay
+                if(command == 'D' && !_skipText) {
+                    while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
+                        commandParameters += input[i];
+                        i++;
+                    }
+                    i--; //because the loop does i++ again at the end, it'll skip if a new command is right next to this one, so we undo that here
 
-                        while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
-                            //Debug.Log(input[i]);
-                            commandParameters += input[i];
-                            i++;
-                        }
+                    float newDelay; //TryParse sets even if it fails
+                    bool success = float.TryParse(commandParameters, out newDelay);
 
-                        float newDelay; //TryParse sets even if it fails
-                        bool success = float.TryParse(commandParameters, out newDelay);
-
-                        if (success) _delay = newDelay / 100.0f;
-                        else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for delay command");
-
-                        break;
-
-                    default:
-                        Debug.Log($"Dialogue Error: Command {command} unrecognized.");
-                        break;
+                    if (success) _delay = newDelay / 100.0f;
+                    else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for delay command");
                 }
-                continue; //skip the space after the command
+                else Debug.Log($"Dialogue Error: Command {command} unrecognized.");
             }
             if (!_skipText) yield return new WaitForSeconds(_delay);
             if (i < input.Length) textHolder.maxVisibleCharacters++;
         }
+
         _currentLineFinished = true;
         //Debug.Log("LINE FINISHED");
     }

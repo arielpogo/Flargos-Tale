@@ -6,6 +6,7 @@ public class Battle : MonoBehaviour {
     public string Name;
     public Sprite DefaultSprite;
     public int Health;
+    public AudioClip BattleTheme;
     
     virtual public void Fight() {
 

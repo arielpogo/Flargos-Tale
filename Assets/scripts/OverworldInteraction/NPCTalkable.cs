@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class NPC_Talkable : BaseInteractableClass{
+public class NPCTalkable : BaseInteractableClass{
     [SerializeField] private DialogueGraph _dialogueGraph;
     
     public override void Interact() {
