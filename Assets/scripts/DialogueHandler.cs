@@ -36,7 +36,7 @@ public class DialogueHandler : MonoBehaviour {
 
     //dialogue writing-related
     const float FONTSIZE = 26.0F;
-    const float DELAY = 0.07F; //Default delay
+    const float DELAY = 0.06F; //Default delay
     private bool _currentLineFinished = false;
     private bool _skipText = false; //skip writing, display all text
     private bool _proceed = false; //go to the next dialogue
@@ -69,6 +69,7 @@ public class DialogueHandler : MonoBehaviour {
             GameObject dialogueBox = DialogueBoxOverride;
             if (_currentNode is DialogueBoxNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[0], GameManager.Instance.player.transform); //0 = default box
             else if (_currentNode is DecisionNode decisionNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[decisionNode.GetDecisions().Length]); //1 = 1 decision; 2 = 2 etc.
+            else if (_currentNode is SaveMenuNode saveMenuNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[saveMenuNode.GetDecisions().Length]);
 
             TMP_Text[] textBoxes = null;
             Image dialogueBoxPortrait = null;
@@ -81,100 +82,111 @@ public class DialogueHandler : MonoBehaviour {
                 if (portraitGOTransform) dialogueBoxPortrait = portraitGOTransform.GetComponent<Image>();
             }
 
-            //handle the dialogue box and sequencing
-            switch (_currentNode) {
-                case DialogueBoxNode _currentNode: {
-                        if (portrait) { //if there is a portrait
-                            dialogueBoxPortrait.sprite = portrait;
-                            dialogueBoxPortrait.color = Color.white;
-                        }
-                        else {
-                            textBoxes[0].margin = _noPortraitMargins;
-                            dialogueBoxPortrait.color = Color.clear;
-                        }
+            textBoxes[0].text = "";//clear debug message
 
-                        textBoxes[0].text = "";//clear debug message
-
-                        StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
-                        yield return new WaitUntil(() => _currentLineFinished);
-                        yield return new WaitUntil(() => _proceed); //wait until true
-                        _proceed = false;
-                        GoToNextNodeViaExit("Next");
-                        break;
-                    }
-                case FloatingDialogueNode _currentNode: //we don't care if there is an image or not, do not touch the dialogue box
+            if (_currentNode is DialogueBoxNode) {
+                if (portrait) { //if there is a portrait
                     dialogueBoxPortrait.sprite = portrait;
-                    textBoxes[0].text = "";
-                    StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
-                    yield return new WaitUntil(() => _currentLineFinished);
-                    yield return new WaitUntil(() => _proceed); //wait until true
-                    _proceed = false;
-                    GoToNextNodeViaExit("Next");
-                    break;
-
-                case DecisionNode _currentNode:
-                    //decision boxes cannot have portraits
-
-                    textBoxes[0].text = ""; //clear debug message
-                    string[] decisions = _currentNode.GetDecisions();
-
-                    if (_currentNode.ExtendedSpaceForDecisions) {
-                        textBoxes[0].margin = _decisionMessageMarginsExpanded;
-                        for (int i = 0; i < decisions.Length; i++) textBoxes[i + 1].margin = _decisionLineMarginsExpanded;
-                    }
-
-                    StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
-                    yield return new WaitUntil(() => _currentLineFinished);
-
-                    for (int i = 0; i < decisions.Length; i++) {
-                        StartCoroutine(TypeWriter(decisions[i], textBoxes[i + 1], _currentNode.GetFontAsset()));
-                        yield return new WaitUntil(() => _currentLineFinished);
-                    }
-
-                    int decision = 0; //0 = not selected, 1-4 is selected, 5 is confirmed
-                    while (decision != 5) {
-                        _decisionDirection = Vector2.zero;
-                        yield return new WaitUntil(() => (_decisionDirection != Vector2.zero)); //wait until decision is made
-                        textBoxes[decision].color = _colorIdle;
-                        switch (decisions.Length) {
-                            case 1:
-                                if (decision != 1) decision = 1;
-                                else GoToNextNodeViaExit("Outcome1");
-                                break;
-                            case 2:
-                                if (_decisionDirection.x < 0 && decision == 1) GoToNextNodeViaExit("Outcome1"); //A
-                                else if (_decisionDirection.x < 0) decision = 1;
-                                else if (decision == 2) GoToNextNodeViaExit("Outcome2");
-                                else decision = 2;
-                                break;
-                            case 3:
-                                if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; } //A
-                                else if (_decisionDirection.x < 0) decision = 1;
-                                else if (_decisionDirection.x > 0 && decision == 3) { GoToNextNodeViaExit("Outcome3"); decision = 5; } //D
-                                else if (_decisionDirection.x > 0) decision = 3;
-                                else if (decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; } //W or S
-                                else decision = 2;
-                                break;
-                            case 4:
-                                if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; }//A
-                                else if (_decisionDirection.x < 0) decision = 1;
-                                else if (_decisionDirection.x > 0 && decision == 4) { GoToNextNodeViaExit("Outcome4"); decision = 5; }//D
-                                else if (_decisionDirection.x > 0) decision = 4;
-                                else if (_decisionDirection.y > 0 && decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; }//W
-                                else if (_decisionDirection.y > 0) decision = 2;
-                                else if (decision == 3) { GoToNextNodeViaExit("Outcome3"); decision = 5; }//S
-                                else decision = 3;
-                                break;
-                            default:
-                                throw new NotImplementedException();
-                        }
-                        if (decision > 0 && decision < 5) textBoxes[decision].color = _colorHighlight;
-                    }
-                    break;
-
-                default:
-                    throw new NotImplementedException();
+                    dialogueBoxPortrait.color = Color.white;
+                }
+                else {
+                    textBoxes[0].margin = _noPortraitMargins;
+                    dialogueBoxPortrait.color = Color.clear;
+                }
             }
+            else if (_currentNode is FloatingDialogueNode) dialogueBoxPortrait.sprite = portrait; //we don't care if there is an image or not, do not touch the dialogue box
+
+            if (_currentNode is DialogueBoxNode || _currentNode is FloatingDialogueNode) {
+                StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
+                yield return new WaitUntil(() => _currentLineFinished);
+                yield return new WaitUntil(() => _proceed); //wait until true
+                _proceed = false;
+                GoToNextNodeViaExit("Next");
+            }
+            else if (_currentNode is DecisionNode dnode) {
+                //decision boxes cannot have portraits
+                string[] decisions = dnode.GetDecisions();
+
+                if (dnode.ExtendedSpaceForDecisions) {
+                    textBoxes[0].margin = _decisionMessageMarginsExpanded;
+                    for (int i = 0; i < decisions.Length; i++) textBoxes[i + 1].margin = _decisionLineMarginsExpanded;
+                }
+
+                StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
+                yield return new WaitUntil(() => _currentLineFinished);
+
+                for (int i = 0; i < decisions.Length; i++) {
+                    StartCoroutine(TypeWriter(decisions[i], textBoxes[i + 1], _currentNode.GetFontAsset()));
+                    yield return new WaitUntil(() => _currentLineFinished);
+                }
+                int decision = 0; //0 = not selected, 1-4 is selected, 5 is confirmed
+                while (decision != 5) {
+                    _decisionDirection = Vector2.zero;
+                    yield return new WaitUntil(() => (_decisionDirection != Vector2.zero)); //wait until decision is made
+                    textBoxes[decision].color = _colorIdle;
+                    switch (decisions.Length) {
+                        case 1:
+                            if (decision != 1) decision = 1;
+                            else { GoToNextNodeViaExit("Outcome1"); decision = 5; }
+                            break;
+                        case 2:
+                            if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; } //A
+                            else if (_decisionDirection.x < 0) decision = 1;
+                            else if (decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; }
+                            else decision = 2;
+                            break;
+                        case 3:
+                            if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; } //A
+                            else if (_decisionDirection.x < 0) decision = 1;
+                            else if (_decisionDirection.x > 0 && decision == 3) { GoToNextNodeViaExit("Outcome3"); decision = 5; } //D
+                            else if (_decisionDirection.x > 0) decision = 3;
+                            else if (decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; } //W or S
+                            else decision = 2;
+                            break;
+                        case 4:
+                            if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; }//A
+                            else if (_decisionDirection.x < 0) decision = 1;
+                            else if (_decisionDirection.x > 0 && decision == 4) { GoToNextNodeViaExit("Outcome4"); decision = 5; }//D
+                            else if (_decisionDirection.x > 0) decision = 4;
+                            else if (_decisionDirection.y > 0 && decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; }//W
+                            else if (_decisionDirection.y > 0) decision = 2;
+                            else if (decision == 3) { GoToNextNodeViaExit("Outcome3"); decision = 5; }//S
+                            else decision = 3;
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    if (decision > 0 && decision < 5) textBoxes[decision].color = _colorHighlight;
+                }
+            }
+            else if (_currentNode is SaveMenuNode snode) {
+                //decision boxes cannot have portraits
+                string[] decisions = snode.GetDecisions();
+
+                StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
+                yield return new WaitUntil(() => _currentLineFinished);
+
+                for (int i = 0; i < decisions.Length; i++) {
+                    StartCoroutine(TypeWriter(decisions[i], textBoxes[i + 1], _currentNode.GetFontAsset()));
+                    yield return new WaitUntil(() => _currentLineFinished);
+                }
+
+                int decision = 0; //0 = not selected, 1-4 is selected, 5 is confirmed
+                while (decision != 5) {
+                    _decisionDirection = Vector2.zero;
+                    yield return new WaitUntil(() => (_decisionDirection != Vector2.zero)); //wait until decision is made
+                    textBoxes[decision].color = _colorIdle;
+
+                    if (_decisionDirection.x < 0 && decision == 1) { GameEvents.Instance.OnDecideSave?.Invoke(); GoToNextNodeViaExit("Outcome1"); decision = 5; }//A
+                    else if (_decisionDirection.x < 0) decision = 1;
+                    else if (decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; }
+                    else decision = 2;
+
+                    if (decision > 0 && decision < 5) textBoxes[decision].color = _colorHighlight;
+                }
+            }
+            else throw new NotImplementedException();
+
             if (dialogueBox && dialogueBox != DialogueBoxOverride) Destroy(dialogueBox); //in case we don't want to destroy it, for example the start intro
         }
         _currentNode = null;
@@ -212,7 +224,7 @@ public class DialogueHandler : MonoBehaviour {
         textHolder.fontSize = FONTSIZE;
 
         string _actualText = input;
-        _actualText = Regex.Replace(_actualText, @"(\|([A-Z]\d*))", String.Empty);
+        _actualText = Regex.Replace(_actualText, @"(\|([A-Z]\d*))", String.Empty); //removes commands: \| a pipe [A-Z] a capital letter \d* any number of digits (a command)
         _actualText = _actualText.TrimEnd(); //removes trailing whitespace
 
         //Sets the text to the text (without commands), but renders 0 of them
@@ -233,7 +245,8 @@ public class DialogueHandler : MonoBehaviour {
                 if (i + 1 < input.Length) i++; //if the command is the last thing in the string, break
                 else break;
 
-                if(command == 'D' && !_skipText) {
+                if (command == 'D') {
+                    if (_skipText) continue;
                     while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
                         commandParameters += input[i];
                         i++;

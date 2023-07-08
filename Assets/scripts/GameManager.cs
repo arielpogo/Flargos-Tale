@@ -13,7 +13,7 @@ public class GameManager : PersistentSingleton<GameManager> {
     public EnemyBattle NextEnemyBattle { get; private set; }
 
     private void Start() {
-        if(SceneManager.GetActiveScene().name == "mainMenu") HandleStartup();
+        Screen.SetResolution(640, 480, false);
         GameEvents.Instance.StartBattle += SetBattle;
     }
 
@@ -33,20 +33,13 @@ public class GameManager : PersistentSingleton<GameManager> {
         GameEvents.Instance.OnGameStateChange?.Invoke(newState);
     }
 
-    //Determines whether to immediately show intro cutscene or show the save screen
-    private void HandleStartup() {
-        Screen.SetResolution(640, 480, false);
-        if (SaveManager.Instance.SaveFiles.Length == 0) {
-            GameEvents.Instance.StartIntro?.Invoke(); //trigger the StartIntro event
-        }
-        else {
-            ChangeGameState(GameState.mainMenu);
-        }
-    }
-
     private void SetBattle(EnemyBattle Enemy) {
         NextEnemyBattle = Enemy;
         ChangeGameState(GameState.battle);
+    }
+
+    public void LoadGame() {
+        SceneManager.LoadScene(SaveManager.PlayerData.sceneName);
     }
 
 }
@@ -54,11 +47,10 @@ public class GameManager : PersistentSingleton<GameManager> {
 [Serializable]
 public enum GameState {
     startup = 0,
-    mainMenu = 1,
-    overworld = 2,
-    overworldMenu = 3,
-    dialogue = 4,
-    cutscene = 5,
-    cutscene_with_control = 6,
-    battle = 7
+    overworld = 1,
+    overworldMenu = 2,
+    dialogue = 3,
+    cutscene = 4,
+    cutscene_with_control = 5,
+    battle = 6
 }

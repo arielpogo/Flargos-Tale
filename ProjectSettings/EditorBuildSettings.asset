@@ -12,11 +12,8 @@ EditorBuildSettings:
     path: Assets/scenes/bpc00.unity
     guid: 59adec3f701aa2644881862cb329099f
   - enabled: 1
-    path: Assets/scenes/mogo.unity
-    guid: 7db2162e5820588479f336bcaac13089
-  - enabled: 1
-    path: Assets/scenes/lab.unity
-    guid: 124072deb52ba5c45aae3bf241ac060d
+    path: Assets/scenes/tylerTown.unity
+    guid: 4ffd5675ce37be246bb1fb82a38a08e1
   - enabled: 1
     path: Assets/scenes/battle.unity
     guid: 9f951494a7a809445bab6f3d2d1c32ca
