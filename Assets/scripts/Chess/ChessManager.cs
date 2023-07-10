@@ -7,7 +7,7 @@ public class ChessManager : MonoBehaviour {
 
     public Dictionary<PieceType, Vector2> PixelOffset = new Dictionary<PieceType, Vector2>();
     
-    private void OnAwake() {
+    private void Awake() {
         PixelOffset.Add(PieceType.Pawn, new Vector2(.2f,.31f));
         PixelOffset.Add(PieceType.Knight, new Vector2(.2f, .31f));
         PixelOffset.Add(PieceType.Bishop, new Vector2(.2f, .31f));

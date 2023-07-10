@@ -5,7 +5,7 @@ using UnityEngine;
 public class MogoManager : MonoBehaviour{
     [SerializeField] private AudioClip mogoSong;
 
-    private void Start() {
-        GameEvents.Instance.PlaySong?.Invoke(mogoSong);
+    private void Awake() {
+        SoundManager.Instance.PlaySong(mogoSong);
     }
 }

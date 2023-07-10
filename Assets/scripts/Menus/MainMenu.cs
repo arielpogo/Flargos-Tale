@@ -1,10 +1,8 @@
-using System.Text.RegularExpressions;
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
-using TMPro;
 
 //Handles the main menu and the intro cutscene.
 public class MainMenuManager : NavigableMenu{
@@ -32,7 +30,8 @@ public class MainMenuManager : NavigableMenu{
         else GoToMainMenu();
     }
 
-    private void RefreshSaves() { 
+    private void RefreshSaves() {
+        int emptySaveCounter = 0; //immediately start the intro if all are empty, ex. all saves are erased
         for(int i = 0; i < SaveManager.maxSaveFiles; i++) {
             SaveManager.Instance.Load(i);
             if (SaveManager.PlayerData.status == 0) { //valid
@@ -47,12 +46,18 @@ public class MainMenuManager : NavigableMenu{
                 _columns[0].Rows[i].text = "Empty";
                 _columns[0].Rows[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = String.Empty;
                 _columns[0].Rows[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = String.Empty;
+                emptySaveCounter++;
             }
             else if(SaveManager.PlayerData.status == 2) { //Corrupted or some other random file renamed and placed in saves folder
                 _columns[0].Rows[i].text = "Error";
                 _columns[0].Rows[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "UNABLE";
                 _columns[0].Rows[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "TO READ";
             }
+        }
+        if(emptySaveCounter == 3) {
+            SoundManager.Instance.StopMusic();
+            SaveManager.PlayerData.saveNum = 0;
+            StartIntro();
         }
     }
 
@@ -66,15 +71,23 @@ public class MainMenuManager : NavigableMenu{
         
     }
 
-    public override void OnReturn(InputValue value) { 
+    public override void OnReturn(InputValue value) {
+        SaveManager.Instance.Erase(_currentRow);
+        RefreshSaves();
     }
 
 
     // Handles when an option is selected
     public override void OnSubmit() {
         SaveManager.Instance.Load(_currentRow);
-        if(SaveManager.PlayerData.status == 0) {
-            GameManager.Instance.LoadGame();
+        switch (SaveManager.PlayerData.status) {
+            case 0:
+                GameManager.Instance.LoadGame();
+                break;
+            case 1:
+                StartIntro();
+                SaveManager.PlayerData.saveNum = _currentRow;
+                break;
         }
     }
 
@@ -102,7 +115,7 @@ public class MainMenuManager : NavigableMenu{
     private void GoToMainMenu() {
         _canvas.enabled = true;
         _playerInput.SwitchCurrentActionMap("UI");
-        GameEvents.Instance.PlaySong?.Invoke(_mainMenuSong);
+        SoundManager.Instance.PlaySong(_mainMenuSong);
         RefreshSaves();
     }
 }

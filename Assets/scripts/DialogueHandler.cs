@@ -35,7 +35,7 @@ public class DialogueHandler : MonoBehaviour {
     //DecisionMessageWMarginDefault is 55.0f;
 
     //dialogue writing-related
-    const float FONTSIZE = 26.0F;
+    const float FONTSIZE = 30.0F;
     const float DELAY = 0.06F; //Default delay
     private bool _currentLineFinished = false;
     private bool _skipText = false; //skip writing, display all text

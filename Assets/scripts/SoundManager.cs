@@ -5,7 +5,8 @@ public class SoundManager : PersistentSingleton<SoundManager> {
     private AudioSource _musicSource;
     private AudioSource _SfxSource;
 
-    private void Start() {
+    private new void Awake() {
+        base.Awake();
         _musicSource = gameObject.AddComponent<AudioSource>();
         _musicSource.loop = true;
 
@@ -23,13 +24,16 @@ public class SoundManager : PersistentSingleton<SoundManager> {
     }
 
     //changes/starts playing a song
-    private void PlaySong(AudioClip song) {
+    public void PlaySong(AudioClip song) {
         _musicSource.Stop();
         _musicSource.clip = song;
         _musicSource.Play();
     }
 
+    public void StopMusic() {
+        _musicSource.Stop();
+    }
 
-    private void PlaySfx(AudioClip sfx) => _SfxSource.PlayOneShot(sfx);
+    public void PlaySfx(AudioClip sfx) => _SfxSource.PlayOneShot(sfx);
 
 }

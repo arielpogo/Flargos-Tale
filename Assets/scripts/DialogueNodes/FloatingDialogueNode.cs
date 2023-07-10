@@ -1,6 +1,5 @@
 ﻿using TMPro;
 using UnityEngine;
-using XNode;
 
 /// <summary>
 /// A screen of dialogue which has no choices for the player to make, not in a container.

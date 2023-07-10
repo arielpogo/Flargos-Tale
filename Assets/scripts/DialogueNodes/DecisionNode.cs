@@ -1,6 +1,5 @@
 ﻿using TMPro;
 using UnityEngine;
-using XNode;
 
 /// <summary>
 /// Node that presents the player with 4 choices to make

@@ -1,4 +1,3 @@
-using System.Data;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -12,7 +11,8 @@ public class SaveManager : PersistentSingleton<SaveManager> {
 
     public static PlayerStats PlayerData = new();
 
-    public void Start() {
+    public new void Awake() {
+        base.Awake();
         GameEvents.Instance.OnDecideSave += Save;
     }
     public void OnDestroy() {
@@ -38,6 +38,8 @@ public class SaveManager : PersistentSingleton<SaveManager> {
 
         //this might be problematic in the future, not sure
         PlayerData.status = 0;
+        PlayerData.sceneName = SceneManager.GetActiveScene().name;
+        PlayerData.date = System.DateTime.Now;
 
         if (!Directory.Exists(saveFolderPath)) Directory.CreateDirectory(saveFolderPath); //create save folder
 
@@ -58,13 +60,12 @@ public class SaveManager : PersistentSingleton<SaveManager> {
 
         FileStream file = File.Open(saveFilePath, FileMode.Open);
 
-        //in case of wrong path or other
+        //in case the file is invalid
         try {
             PlayerData = formatter.Deserialize(file) as PlayerStats;
             file.Close();
         }
         catch {
-            Debug.LogErrorFormat("Failed to load file at {0}", saveFilePath);
             PlayerData.status = 2;
             file.Close();
         }

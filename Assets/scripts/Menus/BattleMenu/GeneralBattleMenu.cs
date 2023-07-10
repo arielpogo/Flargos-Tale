@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,7 +6,7 @@ public class GeneralBattleMenu : NavigableMenu {
     [SerializeField] private GameObject _actMenuPrefab; //remove soon
     [SerializeField] private GameObject _itemMenuPrefab;
 
-    private void Start() {
+    private void Awake() {
         _currentColumn = 0;
     }
 

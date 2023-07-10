@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using XNode;
 
 /// <summary>
 /// A screen of dialogue which has no choices for the player to make, in a cutscene.

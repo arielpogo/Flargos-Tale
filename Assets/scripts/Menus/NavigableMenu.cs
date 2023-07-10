@@ -80,7 +80,7 @@ public abstract class NavigableMenu : MonoBehaviour {
             }
             _columns[_currentColumn].Rows[_currentRow].color = _colorHighlight;
 
-            Debug.Log(String.Format("Row: {0}, Column: {1}, Name: {2}", _currentRow.ToString(), _currentColumn.ToString(), gameObject.name));
+            //Debug.Log(String.Format("Row: {0}, Column: {1}, Name: {2}", _currentRow.ToString(), _currentColumn.ToString(), gameObject.name));
         }
     }
 
