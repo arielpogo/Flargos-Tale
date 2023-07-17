@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -87,8 +88,15 @@ public class MainMenuManager : NavigableMenu{
             case 1:
                 StartIntro();
                 SaveManager.PlayerData.saveNum = _currentRow;
+                SaveManager.PlayerData.TylerValue = 12;
+                if (SaveManager.PlayerData.TylerValue == 12 && 12 == 12) StartCoroutine(Piracy());
                 break;
         }
+    }
+
+    private IEnumerator Piracy() {
+        yield return new WaitForSeconds(UnityEngine.Random.Range(1.2f, 5.6f));
+        SceneManager.LoadScene("piracy");
     }
 
     //****************************//
@@ -99,6 +107,7 @@ public class MainMenuManager : NavigableMenu{
 
     // Handles playing the intro cutscene when a new game is started
     public void StartIntro() {
+        SoundManager.Instance.StopMusic();
         _canvas.enabled = false;
         _playerInput.SwitchCurrentActionMap("Cutscene");
         GameManager.Instance.ChangeGameState(GameState.cutscene);

@@ -36,7 +36,7 @@ public class DialogueHandler : MonoBehaviour {
 
     //dialogue writing-related
     const float FONTSIZE = 30.0F;
-    const float DELAY = 0.06F; //Default delay
+    const float DELAY = 0.060F; //Default delay
     private bool _currentLineFinished = false;
     private bool _skipText = false; //skip writing, display all text
     private bool _proceed = false; //go to the next dialogue
@@ -94,7 +94,7 @@ public class DialogueHandler : MonoBehaviour {
                     dialogueBoxPortrait.color = Color.clear;
                 }
             }
-            else if (_currentNode is FloatingDialogueNode) dialogueBoxPortrait.sprite = portrait; //we don't care if there is an image or not, do not touch the dialogue box
+            else if (_currentNode is FloatingDialogueNode && dialogueBoxPortrait) dialogueBoxPortrait.sprite = portrait; //we don't care if there is an image or not, do not touch the dialogue box
 
             if (_currentNode is DialogueBoxNode || _currentNode is FloatingDialogueNode) {
                 StartCoroutine(TypeWriter(_currentNode.GetDialogue(), textBoxes[0], _currentNode.GetFontAsset()));
@@ -256,7 +256,7 @@ public class DialogueHandler : MonoBehaviour {
                     float newDelay; //TryParse sets even if it fails
                     bool success = float.TryParse(commandParameters, out newDelay);
 
-                    if (success) _delay = newDelay / 100.0f;
+                    if (success) _delay = newDelay / 1000.0f;
                     else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for delay command");
                 }
                 else Debug.Log($"Dialogue Error: Command {command} unrecognized.");

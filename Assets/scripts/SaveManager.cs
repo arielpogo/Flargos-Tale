@@ -83,6 +83,44 @@ public class SaveManager : PersistentSingleton<SaveManager> {
             Debug.LogErrorFormat("Failed to erase file at {0}", saveFilePath);
         }
     }
+
+    /// <summary>
+    /// Please don't use negative parameters.
+    /// </summary>
+    /// <param name="dollars"></param>
+    /// <param name="cents"></param>
+    public void AddMoney(int dollars, int cents) {
+        PlayerData.dollars += dollars;
+        PlayerData.cents += cents;
+        if(PlayerData.cents >= 100) {
+            PlayerData.dollars += PlayerData.cents / 100;
+            PlayerData.cents %= 100;
+        }
+    }
+
+    /// <summary>
+    /// Please don't use negative parameters.
+    /// </summary>
+    /// <param name="dollars"></param>
+    /// <param name="cents"></param>
+    /// <returns>Whether the transaction can go through (i.e. no negative money)</returns>
+    public bool RemoveMoney(int dollars, int cents) {
+        int tempDollars = PlayerData.dollars;
+        int tempCents = PlayerData.cents;
+        tempDollars -= dollars;
+        tempCents -= cents;
+        if(tempCents < 0) {
+            int dollarsDown = tempCents / -100 + 1;
+            tempCents += dollarsDown * 100;
+            tempDollars -= dollarsDown;
+        }
+        if (tempDollars < 0) return false;
+        else {
+            PlayerData.dollars = tempDollars;
+            PlayerData.cents = tempCents;
+            return true;
+        }
+    }
 }
 /// <summary>
 /// Object which stores player data.
@@ -99,6 +137,10 @@ public class PlayerStats {
     public int saveNum = 0;
     public int strength = 1;
     public int stealth = 1;
+    public int dollars = 1; //make my life easier, might change later
+    public int cents = 10;
+    public int debt = 0;
+    public int TylerValue = 0;
     public string sceneName = "mainMenu";
 }
 

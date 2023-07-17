@@ -44,7 +44,7 @@ public class OverworldPlayerControl : MonoBehaviour {
     //****************************//
 
     // Grabbing components, subscribing to events, calculating values.
-    private void Start() {
+    private void Awake() {
         _rigidBody = GetComponent<Rigidbody2D>(); //sets rb to the Rigidbody2D component in the Player object
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -55,6 +55,9 @@ public class OverworldPlayerControl : MonoBehaviour {
         _shadowRigidBody = GameObject.FindWithTag("PlayerShadow").GetComponent<Rigidbody2D>();
 
         GameEvents.Instance.OnGameStateChange += UpdateActionMap;
+    }
+    private void Start() {
+        GameManager.Instance.ChangeGameState(GameState.overworld);
     }
 
     private void OnDestroy() {

@@ -16,6 +16,8 @@ public class GameManager : PersistentSingleton<GameManager> {
         Screen.SetResolution(640, 480, false);
         GameEvents.Instance.StartBattle += SetBattle;
         SceneManager.activeSceneChanged += OnSceneChange;
+
+
     }
 
     private void OnDestroy() {
