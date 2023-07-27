@@ -36,10 +36,11 @@ public class DialogueHandler : MonoBehaviour {
 
     //dialogue writing-related
     const float FONTSIZE = 30.0F;
-    const float DELAY = 0.060F; //Default delay
+    const float DELAY = 0.030F; //Default delay
     private bool _currentLineFinished = false;
     private bool _skipText = false; //skip writing, display all text
     private bool _proceed = false; //go to the next dialogue
+    private bool _pauseDialogue = false; //cutscenes can pause dialogue and resume later
     private Vector2 _decisionDirection = Vector2.zero;
     private float _delay = DELAY;
     private Color _colorIdle = Color.white;
@@ -62,12 +63,13 @@ public class DialogueHandler : MonoBehaviour {
         GoToNextNodeViaExit("Next"); //go to first node from the start node
 
         while (_currentNode is not EndNode) {
+            if(_pauseDialogue) yield return new WaitUntil(() => !_pauseDialogue);
             Sprite portrait = null;
             portrait = _currentNode.GetPortrait();
 
             //spawn the dialogue box
             GameObject dialogueBox = DialogueBoxOverride;
-            if (_currentNode is DialogueBoxNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[0], GameManager.Instance.player.transform); //0 = default box
+            if (_currentNode is DialogueBoxNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[0], GameManager.Instance.Player.transform); //0 = default box
             else if (_currentNode is DecisionNode decisionNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[decisionNode.GetDecisions().Length]); //1 = 1 decision; 2 = 2 etc.
             else if (_currentNode is SaveMenuNode saveMenuNode) dialogueBox = Instantiate(_dialogueBoxPrefabs[saveMenuNode.GetDecisions().Length]);
 
@@ -245,7 +247,7 @@ public class DialogueHandler : MonoBehaviour {
                 if (i + 1 < input.Length) i++; //if the command is the last thing in the string, break
                 else break;
 
-                if (command == 'D') {
+                if (command == 'D') { //change delay (inverse of speed)
                     if (_skipText) continue;
                     while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
                         commandParameters += input[i];
@@ -258,13 +260,28 @@ public class DialogueHandler : MonoBehaviour {
 
                     if (success) _delay = newDelay / 1000.0f;
                     else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for delay command");
+                    continue;
+                }
+                else if (command == 'P') { //pause for a certain number of seconds
+                    if (_skipText) continue;
+                    while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
+                        commandParameters += input[i];
+                        i++;
+                    }
+                    i--; //because the loop does i++ again at the end, it'll skip if a new command is right next to this one, so we undo that here
+                    float wait; //TryParse sets even if it fails
+                    bool success = float.TryParse(commandParameters, out wait);
+                    if (success) yield return new WaitForSeconds(wait/1000.0f);
+                    else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for wait command");
+                    continue;
                 }
                 else Debug.Log($"Dialogue Error: Command {command} unrecognized.");
             }
             if (!_skipText) yield return new WaitForSeconds(_delay);
+            //Debug.Log($"Delay: {_delay}, current character: {input[i]}");
             if (i < input.Length) textHolder.maxVisibleCharacters++;
         }
-
+        if (!_skipText) yield return new WaitForSeconds(_delay);
         _currentLineFinished = true;
         //Debug.Log("LINE FINISHED");
     }
@@ -283,6 +300,11 @@ public class DialogueHandler : MonoBehaviour {
 
     // Only called by cutscene signals. Because they are predictable, we do not need to check them.
     public void CutsceneProceed() => _proceed = true;
+
+    public void CutsceneTogglePause() {
+        if (_pauseDialogue) _pauseDialogue = false;
+        else _pauseDialogue = true;
+    }
 
     //called by unity input events
     public void OnDecide(InputValue value) {

@@ -15,8 +15,7 @@ public class GameEvents : PersistentSingleton<GameEvents> {
     public SoundEvent PlaySfx;
 
     //Battles
-    public delegate void BattleStart(EnemyBattle Enemy);
-    public BattleStart StartBattle;
+    public Action BattleStart;
     public Action EndBattle;
 
     //Saving

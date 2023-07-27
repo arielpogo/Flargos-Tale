@@ -88,8 +88,8 @@ public class MainMenuManager : NavigableMenu{
             case 1:
                 StartIntro();
                 SaveManager.PlayerData.saveNum = _currentRow;
-                SaveManager.PlayerData.TylerValue = 12;
-                if (SaveManager.PlayerData.TylerValue == 12 && 12 == 12) StartCoroutine(Piracy());
+                SaveManager.PlayerData.TylerValue = UnityEngine.Random.Range(0,100);
+                if (SaveManager.PlayerData.TylerValue == 12 && UnityEngine.Random.Range(0, 100) == 12) StartCoroutine(Piracy());
                 break;
         }
     }

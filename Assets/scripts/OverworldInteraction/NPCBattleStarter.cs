@@ -1,9 +1,9 @@
 using UnityEngine;
 
 public class NPCBattleStarter : BaseInteractableClass {
-    [SerializeField] private EnemyBattle Battle;
+    [SerializeField] int battleID;
 
     public override void Interact() {
-        GameEvents.Instance.StartBattle(Battle);
+        BattleManager.Instance.StartBattle(battleID);
     }
 }

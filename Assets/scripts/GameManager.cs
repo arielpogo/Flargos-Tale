@@ -7,23 +7,19 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameManager : PersistentSingleton<GameManager> {
     public GameState MasterGameState { get; private set; }
-    public GameObject player { get; private set; }
+    public GameObject Player { get; private set; }
 
-    public EnemyBattle NextEnemyBattle { get; private set; }
+    public int NextEnemyBattle { get; private set; }
 
     private new void Awake() {
         base.Awake();
         Screen.SetResolution(640, 480, false);
-        GameEvents.Instance.StartBattle += SetBattle;
         SceneManager.activeSceneChanged += OnSceneChange;
-
-
     }
 
     private void OnDestroy() {
-        Debug.Log($"I am getting destroyed, my player is {player}");
+        Debug.Log($"I am getting destroyed, my player is {Player}");
         if (GameEvents.Instance != null) {
-            GameEvents.Instance.StartBattle -= SetBattle;
         }
     }
 
@@ -37,17 +33,12 @@ public class GameManager : PersistentSingleton<GameManager> {
         GameEvents.Instance.OnGameStateChange?.Invoke(newState);
     }
 
-    private void SetBattle(EnemyBattle Enemy) {
-        NextEnemyBattle = Enemy;
-        ChangeGameState(GameState.battle);
-    }
-
     public void LoadGame() {
         SceneManager.LoadScene(SaveManager.PlayerData.sceneName);
     }
 
     private void OnSceneChange(Scene Current, Scene Next) {
-        player = GameObject.FindWithTag("Player");
+        Player = GameObject.FindWithTag("Player");
     }
 
 }
