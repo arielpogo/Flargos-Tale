@@ -23,7 +23,6 @@ public abstract class NavigableMenu : MonoBehaviour {
     protected int _currentRow = -1;
 
     protected NavigableMenu _previousMenu = null; //what menu to return control to afterward, set by the calling menu
-    protected GameState _returnGameState;
 
     protected Color _colorIdle = Color.white;
     protected Color _colorHighlight = new(1, 1, 0, 1);
@@ -31,9 +30,8 @@ public abstract class NavigableMenu : MonoBehaviour {
     /// <summary>
     /// Called by the Factory.InstantiateNavigableMenu() function
     /// </summary>
-    public void Setup(NavigableMenu previousMenu, GameState returnGameState) {
+    public void Setup(NavigableMenu previousMenu) {
         _previousMenu = previousMenu;
-        _returnGameState = returnGameState;
     }
 
     /// <summary>

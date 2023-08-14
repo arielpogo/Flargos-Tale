@@ -45,7 +45,6 @@ public class DialogueHandler : MonoBehaviour {
     private float _delay = DELAY;
     private Color _colorIdle = Color.white;
     private Color _colorHighlight = new(1, 1, 0, 1);
-    private GameState _previousGameState;
 
     //****************************//
     //                            //

@@ -172,7 +172,7 @@ public class OverworldPlayerControl : MonoBehaviour {
     //****************************//
 
     public void OnOpenMenu() {
-         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null, GameState.overworld_control); //previous menu == null because this class isn't a navigatablemenu
+         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null); //previous menu == null because this class isn't a navigatablemenu
     }
 
     private void UpdateActionMap() {
