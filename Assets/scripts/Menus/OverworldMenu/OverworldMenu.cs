@@ -6,7 +6,7 @@ public class OverworldMenu : NavigableMenu{
     [SerializeField] private GameObject _statsMenuPrefab;
 
     private void Start() {
-        GameManager.Instance.ChangeGameState(GameState.overworldMenu);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_opened);
     }
 
     public override void OnSubmit() {

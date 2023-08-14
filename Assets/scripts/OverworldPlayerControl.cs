@@ -57,7 +57,7 @@ public class OverworldPlayerControl : MonoBehaviour {
         GameEvents.Instance.OnGameStateChange += UpdateActionMap;
     }
     private void Start() {
-        GameManager.Instance.ChangeGameState(GameState.overworld);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.overworld_enter);
     }
 
     private void OnDestroy() {
@@ -172,16 +172,15 @@ public class OverworldPlayerControl : MonoBehaviour {
     //****************************//
 
     public void OnOpenMenu() {
-         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null, GameState.overworld); //previous menu == null because this class isn't a navigatablemenu
+         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null, GameState.overworld_control); //previous menu == null because this class isn't a navigatablemenu
     }
 
-    private void UpdateActionMap(GameState NewGameState) {
-        switch (NewGameState) {
-            case GameState.overworld:
-            case GameState.cutscene_with_control:
+    private void UpdateActionMap() {
+        switch (GameManager.Instance.GetCurrentGameState()) {
+            case GameState.overworld_control:
                 _playerInput.SwitchCurrentActionMap("Overworld");
                 break;
-            case GameState.overworldMenu:
+            case GameState.ui:
                 _playerInput.SwitchCurrentActionMap("UI");
                 break;
             case GameState.dialogue:

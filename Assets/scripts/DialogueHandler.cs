@@ -45,6 +45,7 @@ public class DialogueHandler : MonoBehaviour {
     private float _delay = DELAY;
     private Color _colorIdle = Color.white;
     private Color _colorHighlight = new(1, 1, 0, 1);
+    private GameState _previousGameState;
 
     //****************************//
     //                            //
@@ -58,12 +59,12 @@ public class DialogueHandler : MonoBehaviour {
     /// <param name="graph">The DialogueGraph to read from.</param>
     /// <exception cref="NotImplementedException">Temporarily for the node types I haven't implemented functionality yet.</exception>
     public IEnumerator DialogueSequence(DialogueGraph graph, GameObject DialogueBoxOverride = null) {
-        GameManager.Instance.ChangeGameState(GameState.dialogue);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.dialogue_started);
         _currentNode = graph.GetStartNode();
         GoToNextNodeViaExit("Next"); //go to first node from the start node
 
         while (_currentNode is not EndNode) {
-            if(_pauseDialogue) yield return new WaitUntil(() => !_pauseDialogue);
+            if(_pauseDialogue) yield return new WaitUntil(() => !_pauseDialogue); //dialogue paused, e.g. in a cutscene
             Sprite portrait = null;
             portrait = _currentNode.GetPortrait();
 
@@ -192,7 +193,7 @@ public class DialogueHandler : MonoBehaviour {
             if (dialogueBox && dialogueBox != DialogueBoxOverride) Destroy(dialogueBox); //in case we don't want to destroy it, for example the start intro
         }
         _currentNode = null;
-        GameManager.Instance.ChangeGameState(GameState.overworld);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.dialogue_ended);
     }
 
     /// <summary>

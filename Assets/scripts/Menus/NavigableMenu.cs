@@ -93,14 +93,16 @@ public abstract class NavigableMenu : MonoBehaviour {
 
     //for when we want the whole menu to close, subsequently calling all the way down
     public virtual void TotalMenuClose() {
-        if (_previousMenu == null) {
-            GameManager.Instance.ChangeGameState(_returnGameState);
-            Destroy(gameObject);
-        }
-        else {
-            _previousMenu.enabled = true;
-            _previousMenu.TotalMenuClose();
-            Destroy(gameObject);
+        if (enabled) {
+            if (_previousMenu == null) {
+                GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_closed);
+                Destroy(gameObject);
+            }
+            else {
+                _previousMenu.enabled = true;
+                _previousMenu.TotalMenuClose();
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -111,7 +113,7 @@ public abstract class NavigableMenu : MonoBehaviour {
         InputAction.CallbackContext context = value.GetCallBackContext();
         if (context.performed && enabled) {
             if (_previousMenu == null) {
-                GameManager.Instance.ChangeGameState(_returnGameState);
+                GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_closed);
                 Destroy(gameObject);
             }
             else {

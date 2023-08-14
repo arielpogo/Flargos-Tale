@@ -34,7 +34,7 @@ public class MainMenuManager : NavigableMenu{
     private void RefreshSaves() {
         int emptySaveCounter = 0; //immediately start the intro if all are empty, ex. all saves are erased
         for(int i = 0; i < SaveManager.maxSaveFiles; i++) {
-            SaveManager.Instance.Load(i);
+            GameEvents.Instance.LoadSave.Invoke(i);
             if (SaveManager.PlayerData.status == 0) { //valid
                 //set the date child of each TMPText on the main menu
                 _columns[0].Rows[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = SaveManager.PlayerData.date.ToShortDateString();
@@ -56,7 +56,7 @@ public class MainMenuManager : NavigableMenu{
             }
         }
         if(emptySaveCounter == 3) {
-            SoundManager.Instance.StopMusic();
+            GameEvents.Instance.StopMusic.Invoke();
             SaveManager.PlayerData.saveNum = 0;
             StartIntro();
         }
@@ -80,10 +80,11 @@ public class MainMenuManager : NavigableMenu{
 
     // Handles when an option is selected
     public override void OnSubmit() {
-        SaveManager.Instance.Load(_currentRow);
+        GameEvents.Instance.LoadSave.Invoke(_currentRow);
         switch (SaveManager.PlayerData.status) {
             case 0:
                 GameManager.Instance.LoadGame();
+                GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_closed);
                 break;
             case 1:
                 StartIntro();
@@ -107,10 +108,10 @@ public class MainMenuManager : NavigableMenu{
 
     // Handles playing the intro cutscene when a new game is started
     public void StartIntro() {
-        SoundManager.Instance.StopMusic();
+        GameEvents.Instance.StopMusic.Invoke();
         _canvas.enabled = false;
         _playerInput.SwitchCurrentActionMap("Cutscene");
-        GameManager.Instance.ChangeGameState(GameState.cutscene);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.cutscene_started);
         _introCutsceneCanvas.SetActive(true);
         _introCutsceneTimeline.SetActive(true);
     }
@@ -120,11 +121,13 @@ public class MainMenuManager : NavigableMenu{
         //_introCutsceneCanvas.SetActive(false);
         //_introCutsceneTimeline.SetActive(false);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.cutscene_ended);
     }
     private void GoToMainMenu() {
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_opened);
         _canvas.enabled = true;
         _playerInput.SwitchCurrentActionMap("UI");
-        SoundManager.Instance.PlaySong(_mainMenuSong);
+        GameEvents.Instance.PlaySong.Invoke(_mainMenuSong);
         RefreshSaves();
     }
 }

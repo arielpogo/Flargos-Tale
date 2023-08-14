@@ -14,9 +14,13 @@ public class SaveManager : PersistentSingleton<SaveManager> {
     public new void Awake() {
         base.Awake();
         GameEvents.Instance.OnDecideSave += Save;
+        GameEvents.Instance.LoadSave += Load;
     }
     public void OnDestroy() {
-        if (GameEvents.Instance != null) GameEvents.Instance.OnDecideSave -= Save;
+        if (GameEvents.Instance != null) {
+            GameEvents.Instance.OnDecideSave -= Save;
+            GameEvents.Instance.LoadSave -= Load;
+        }
     }
 
     /// <summary>

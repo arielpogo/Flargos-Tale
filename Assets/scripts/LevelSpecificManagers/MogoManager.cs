@@ -6,6 +6,6 @@ public class MogoManager : MonoBehaviour{
     [SerializeField] private AudioClip mogoSong;
 
     private void Awake() {
-        SoundManager.Instance.PlaySong(mogoSong);
+        GameEvents.Instance.PlaySong.Invoke(mogoSong);
     }
 }

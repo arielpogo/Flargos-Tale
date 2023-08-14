@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,14 +14,15 @@ public class BattleManager : PersistentSingleton<BattleManager>{
     };
     
     public void StartBattle(int ID) {
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.battle_started);
         Battle battle = MasterBattleList[ID];
         SceneNameToReturnTo = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene("battle");
-        if(battle.playSong) SoundManager.Instance.PlaySong(Resources.Load(battle.song) as AudioClip);
+        if(battle.playSong) GameEvents.Instance.PlaySong.Invoke(Resources.Load(battle.song) as AudioClip);
     }
 
     public void EndBattle() {
-        GameManager.Instance.ChangeGameState(GameState.overworld);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.battle_ended);
         SceneManager.LoadScene(SceneNameToReturnTo);
         SceneNameToReturnTo = string.Empty;
     }
