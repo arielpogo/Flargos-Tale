@@ -9,6 +9,9 @@ public class GameEvents : PersistentSingleton<GameEvents> {
     //Gamestate
     public Action OnGameStateChange; //to notify other scripts the gamestate changed
 
+    public delegate void SpawnPlayerDelgate(GameObject player, int spawnerID, Vector3 offset);
+    public SpawnPlayerDelgate SpawnPlayer;
+
     //Major Events
     public delegate void MajorEventDelegate(MajorEvent evnt);
     public MajorEventDelegate MajorEvent;

@@ -43,7 +43,7 @@ public class OverworldPlayerControl : MonoBehaviour {
     //                            //
     //****************************//
 
-    // Grabbing components, subscribing to events, calculating values.
+    // Grabbing components, subscribing to events
     private void Awake() {
         _rigidBody = GetComponent<Rigidbody2D>(); //sets rb to the Rigidbody2D component in the Player object
         _animator = GetComponent<Animator>();
@@ -173,6 +173,10 @@ public class OverworldPlayerControl : MonoBehaviour {
 
     public void OnOpenMenu() {
          Factory.InstantiateNavigableMenu(_generalMenuPrefab, null); //previous menu == null because this class isn't a navigatablemenu
+    }
+
+    public void OnToggleDebug(){
+
     }
 
     private void UpdateActionMap() {

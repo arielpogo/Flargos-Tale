@@ -7,16 +7,36 @@ using UnityEngine.SceneManagement;
 /// The game manager handles the gamestate and the startup.
 /// </summary>
 public class GameManager : PersistentSingleton<GameManager> {
+    //Gamestate
     private Stack<GameState> _gameStateStack = new();
-    public GameObject Player { get; private set; }
 
-    public int NextEnemyBattle { get; private set; }
+    //Global reference to the player
+    public GameObject Player { get; private set; }
+    
+    //Changing Levels
+    public int NextSpawner //if set, then use it. Else, spawn the player in the default position
+    {
+        get => _nextSpawner;
+        set {
+            _useSpawner = true;
+            _nextSpawner = value;
+        }
+    }
+    public Vector3 SpawnerOffset;
+    private bool _useSpawner = false;
+    private int _nextSpawner = 0;
+
+    //****************************//
+    //                            //
+    //      AWAKE/ONDESTROY       //
+    //                            //
+    //****************************//
 
     private new void Awake() {
         base.Awake();
         Application.targetFrameRate = 60;
         Screen.SetResolution(640, 480, false);
-        SceneManager.activeSceneChanged += OnSceneChange;
+        SceneManager.sceneLoaded += OnSceneChange;
         GameEvents.Instance.MajorEvent += MajorEventHandler;
     }
 
@@ -24,8 +44,15 @@ public class GameManager : PersistentSingleton<GameManager> {
         Debug.Log($"I am getting destroyed, my player is {Player}");
         if (GameEvents.Instance != null) {
             GameEvents.Instance.MajorEvent -= MajorEventHandler;
+            SceneManager.sceneLoaded -= OnSceneChange;
         }
     }
+
+    //****************************//
+    //                            //
+    //         GAMESTATE          //
+    //                            //
+    //****************************//
 
     public void AddGameState(GameState newState) {
         Debug.Log($"Adding gamestate {newState}");
@@ -36,7 +63,6 @@ public class GameManager : PersistentSingleton<GameManager> {
     private void RevertGameState(){
         Debug.Log($"Popping gamestate {_gameStateStack.Peek()}");
         _gameStateStack.Pop();
-        //if (_gameStateStack.Count == 0) _gameStateStack.Push(GameState.overworld_control);
         GameEvents.Instance.OnGameStateChange?.Invoke();
     }
 
@@ -63,24 +89,21 @@ public class GameManager : PersistentSingleton<GameManager> {
                 else RevertGameState();
                 break;
             case MajorEvent.ui_closed:
-                if (GetCurrentGameState() != GameState.ui)
-                {
+                if (GetCurrentGameState() != GameState.ui){
                     Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
                     return;
                 }
                 else RevertGameState();
                 break;
             case MajorEvent.dialogue_ended:
-                if (GetCurrentGameState() != GameState.dialogue)
-                {
+                if (GetCurrentGameState() != GameState.dialogue){
                     Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
                     return;
                 }
                 else RevertGameState();
                 break;
             case MajorEvent.battle_ended:
-                if (GetCurrentGameState() != GameState.battle)
-                {
+                if (GetCurrentGameState() != GameState.battle){
                     Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
                     return;
                 }
@@ -98,15 +121,24 @@ public class GameManager : PersistentSingleton<GameManager> {
         return _gameStateStack.Peek();
     }
 
+    //****************************//
+    //                            //
+    //            MISC            //
+    //                            //
+    //****************************//
+
     public void LoadGame() {
         SceneManager.LoadScene(SaveManager.PlayerData.sceneName);
     }
 
-    private void OnSceneChange(Scene Current, Scene Next) {
+    private void OnSceneChange(Scene a, LoadSceneMode next) {
         Player = GameObject.FindWithTag("Player");
-        //place player where they need to be
+        if (Player == null) return;
+        else if (_useSpawner){
+            GameEvents.Instance.SpawnPlayer.Invoke(Player, _nextSpawner, SpawnerOffset);
+            _useSpawner = false;
+        }
     }
-
 }
 
 [Serializable]
