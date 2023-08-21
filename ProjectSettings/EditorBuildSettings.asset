@@ -21,6 +21,9 @@ EditorBuildSettings:
     path: Assets/scenes/tylerTown0.unity
     guid: 4ffd5675ce37be246bb1fb82a38a08e1
   - enabled: 1
+    path: Assets/scenes/kissesVillage0.unity
+    guid: a78130476bddfd54e96dc0488e848561
+  - enabled: 1
     path: Assets/scenes/battle.unity
     guid: 9f951494a7a809445bab6f3d2d1c32ca
   - enabled: 1

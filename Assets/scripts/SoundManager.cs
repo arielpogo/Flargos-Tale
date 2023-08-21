@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SoundManager : PersistentSingleton<SoundManager> {
 
@@ -17,6 +18,7 @@ public class SoundManager : PersistentSingleton<SoundManager> {
         GameEvents.Instance.PlaySong += PlaySongStarter;
         GameEvents.Instance.PlaySfx += PlaySfx;
         GameEvents.Instance.StopMusic += StopMusicStarter;
+        SceneManager.sceneLoaded += GetSceneMusic;
     }
 
     private void OnDestroy() {
@@ -24,6 +26,7 @@ public class SoundManager : PersistentSingleton<SoundManager> {
             GameEvents.Instance.PlaySong -= PlaySongStarter;
             GameEvents.Instance.PlaySfx -= PlaySfx;
             GameEvents.Instance.StopMusic -= StopMusicStarter;
+            SceneManager.sceneLoaded -= GetSceneMusic;
         }
     }
 
@@ -39,6 +42,7 @@ public class SoundManager : PersistentSingleton<SoundManager> {
     }
 
     private IEnumerator StopMusic(float fadeOutTime) {
+        if (!_musicSource.isPlaying) yield break;
         yield return StartCoroutine(LerpVolume(_musicSource.volume, 0, fadeOutTime));
         _musicSource.Stop();
     }
@@ -53,9 +57,25 @@ public class SoundManager : PersistentSingleton<SoundManager> {
         _musicSource.volume = end;
     }
 
-    public void PlaySfx(AudioClip sfx, float volume) {
+    private void PlaySfx(AudioClip sfx, float volume) {
         _SfxSource.volume = volume;
         _SfxSource.PlayOneShot(sfx);
     }
 
+    private void GetSceneMusic(Scene current, LoadSceneMode m) {
+        string song = string.Empty;
+        switch (current.buildIndex) {
+            case 4:
+                song = "grass";
+                break;
+            case 5:
+                song = "kisses_village";
+                break;
+        }
+
+        song = "music/" + song;
+
+        if (song.Length > 0 && _musicSource.isPlaying && _musicSource.clip.name != song) StartCoroutine(PlaySong(Resources.Load<AudioClip>(song), 1f, 0f, 0.25f));
+        else if (song.Length > 0 && !_musicSource.isPlaying) StartCoroutine(PlaySong(Resources.Load<AudioClip>(song), 1f, 0f, 0.25f));
+    }
 }
