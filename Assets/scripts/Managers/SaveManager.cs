@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -11,6 +12,17 @@ public class SaveManager : PersistentSingleton<SaveManager> {
 
     public static PlayerStats PlayerData = new();
 
+    public Item[] GameItem = new Item[] {
+        new("test item", false, true),
+        new("Tyler's Hat", false, true)
+    };
+
+    //****************************//
+    //                            //
+    //      AWAKE/ONDESTROY       //
+    //                            //
+    //****************************//
+
     public new void Awake() {
         base.Awake();
         GameEvents.Instance.OnDecideSave += Save;
@@ -22,6 +34,12 @@ public class SaveManager : PersistentSingleton<SaveManager> {
             GameEvents.Instance.LoadSave -= Load;
         }
     }
+
+    //****************************//
+    //                            //
+    //       SAVING/LOADING       //
+    //                            //
+    //****************************//
 
     /// <summary>
     /// Gets all save files in the save folder.
@@ -44,6 +62,7 @@ public class SaveManager : PersistentSingleton<SaveManager> {
         PlayerData.status = 0;
         PlayerData.sceneName = SceneManager.GetActiveScene().name;
         PlayerData.date = System.DateTime.Now;
+        PlayerData.savedPos = GameManager.Instance.Player.transform.position;
 
         if (!Directory.Exists(saveFolderPath)) Directory.CreateDirectory(saveFolderPath); //create save folder
 
@@ -88,6 +107,12 @@ public class SaveManager : PersistentSingleton<SaveManager> {
         }
     }
 
+    //****************************//
+    //                            //
+    //   PLAYER DATA INTERFACE    //
+    //                            //
+    //****************************//
+
     /// <summary>
     /// Please don't use negative parameters.
     /// </summary>
@@ -126,6 +151,15 @@ public class SaveManager : PersistentSingleton<SaveManager> {
         }
     }
 }
+
+//****************************//
+//                            //
+//      RELATED CLASSES       //
+//                            //
+//****************************//
+
+//todo: may split into multiple files
+
 /// <summary>
 /// Object which stores player data.
 /// </summary>
@@ -146,5 +180,18 @@ public class PlayerStats {
     public int debt = 0;
     public int TylerValue = 0;
     public string sceneName = "mainMenu";
+    public Vector2 savedPos;
+    public List<Item> inventory = new List<Item>();
 }
 
+public class Item {
+    public string Name { get; private set; } = "DEFAULT_ITEM";
+    public bool Stackable { get; private set; } = true;
+    public bool Key { get; private set; } = false;  //key item aka deleteable?
+
+    public Item(string name, bool stackable, bool key) {
+        Name = name;
+        Stackable = stackable;
+        Key = key;
+    }
+}

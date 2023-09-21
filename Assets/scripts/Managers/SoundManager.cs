@@ -2,11 +2,21 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Manager for audio
+/// </summary>
 public class SoundManager : PersistentSingleton<SoundManager> {
 
-    private AudioSource _musicSource;
-    private AudioSource _SfxSource;
+    private AudioSource _musicSource; //component for music
+    private AudioSource _SfxSource; //component for sfx
     public const float defaultFadeTime = 0.5f;
+
+    //****************************//
+    //                            //
+    //      AWAKE/ONDESTROY       //
+    //                            //
+    //****************************//
+
 
     private new void Awake() {
         base.Awake();
@@ -30,8 +40,20 @@ public class SoundManager : PersistentSingleton<SoundManager> {
         }
     }
 
+    //****************************//
+    //                            //
+    //          HELPERS           //
+    //                            //
+    //****************************//
+
     private void PlaySongStarter(AudioClip sound, float volume, float fadeInTime, float fadeOutTime) => StartCoroutine(PlaySong(sound,volume,fadeInTime,fadeOutTime));
     private void StopMusicStarter(float fadeOutTime) => StartCoroutine(StopMusic(fadeOutTime));
+
+    //****************************//
+    //                            //
+    //         COROUTINES         //
+    //                            //
+    //****************************//
 
     //changes/starts playing a song
     private IEnumerator PlaySong(AudioClip song, float volume, float fadeInTime, float fadeOutTime) {
@@ -47,6 +69,9 @@ public class SoundManager : PersistentSingleton<SoundManager> {
         _musicSource.Stop();
     }
 
+    /// <summary>
+    /// Interpolates volume
+    /// </summary>
     private IEnumerator LerpVolume(float start, float end, float duration) {
         float t = 0f;
         while(t < duration) {
@@ -62,9 +87,23 @@ public class SoundManager : PersistentSingleton<SoundManager> {
         _SfxSource.PlayOneShot(sfx);
     }
 
+    //****************************//
+    //                            //
+    //            MISC            //
+    //                            //
+    //****************************//
+
+    /// <summary>
+    /// Triggered by SceneManager.sceneLoaded, changes music based on scene
+    /// </summary>
     private void GetSceneMusic(Scene current, LoadSceneMode m) {
         string song = string.Empty;
         switch (current.buildIndex) {
+            case 1:
+            case 2:
+            case 3:
+                song = "bpc_music_temp";
+                break;
             case 4:
                 song = "grass";
                 break;
@@ -73,9 +112,7 @@ public class SoundManager : PersistentSingleton<SoundManager> {
                 break;
         }
 
-        song = "music/" + song;
-
-        if (song.Length > 0 && _musicSource.isPlaying && _musicSource.clip.name != song) StartCoroutine(PlaySong(Resources.Load<AudioClip>(song), 1f, 0f, 0.25f));
-        else if (song.Length > 0 && !_musicSource.isPlaying) StartCoroutine(PlaySong(Resources.Load<AudioClip>(song), 1f, 0f, 0.25f));
+        if (song.Length > 0 && _musicSource.isPlaying && _musicSource.clip.name != song) StartCoroutine(PlaySong(Resources.Load<AudioClip>("music/" + song), 1f, 0f, 0.25f));
+        else if (song.Length > 0 && !_musicSource.isPlaying) StartCoroutine(PlaySong(Resources.Load<AudioClip>("music/" + song), 1f, 0f, 0.25f));
     }
 }

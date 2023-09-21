@@ -18,7 +18,7 @@ public class Cutscene_SalsaTyler : MonoBehaviour {
         GameEvents.Instance.MajorEvent.Invoke(MajorEvent.cutscene_started);
     }
 
-    public void Proceed() {
+    public void Proceed() { //when at a given checkpoint
         cutsceneProgress++;
         switch (cutsceneProgress) {
             case 1:
@@ -27,6 +27,7 @@ public class Cutscene_SalsaTyler : MonoBehaviour {
         }
     }
 
+    //old system, replaced with MajorEvents system
     /*public void TogglePause() {
         if (paused) {
             paused = false;

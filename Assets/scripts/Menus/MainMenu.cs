@@ -31,6 +31,7 @@ public class MainMenuManager : NavigableMenu{
         else GoToMainMenu();
     }
 
+    //Update the saves when they change, 
     private void RefreshSaves() {
         int emptySaveCounter = 0; //immediately start the intro if all are empty, ex. all saves are erased
         for(int i = 0; i < SaveManager.maxSaveFiles; i++) {
@@ -69,7 +70,7 @@ public class MainMenuManager : NavigableMenu{
     //****************************//
 
     public override void OnCloseMenu() {
-        
+        //don't allow main menu to be closed...
     }
 
     public override void OnReturn(InputValue value) {
@@ -95,6 +96,7 @@ public class MainMenuManager : NavigableMenu{
         }
     }
 
+    //easter egg
     private IEnumerator Piracy() {
         yield return new WaitForSeconds(UnityEngine.Random.Range(1.2f, 5.6f));
         SceneManager.LoadScene("piracy");
@@ -123,6 +125,8 @@ public class MainMenuManager : NavigableMenu{
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         GameEvents.Instance.MajorEvent.Invoke(MajorEvent.cutscene_ended);
     }
+
+    //Activate main menu, instead of a cutscene or anything
     private void GoToMainMenu() {
         GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_opened);
         _canvas.enabled = true;

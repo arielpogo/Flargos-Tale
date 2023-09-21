@@ -66,6 +66,11 @@ public class GameManager : PersistentSingleton<GameManager> {
         GameEvents.Instance.OnGameStateChange?.Invoke();
     }
 
+    private void LogMajorEventMismatchError(MajorEvent e) {
+        Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
+    }
+
+    //there is probably a better way to do this...
     private void MajorEventHandler(MajorEvent e) {
         Debug.Log($"MajorEventHandler called with event {e}");
         switch (e) {
@@ -83,28 +88,28 @@ public class GameManager : PersistentSingleton<GameManager> {
                 break;
             case MajorEvent.cutscene_ended:
                 if (GetCurrentGameState() != GameState.cutscene) {
-                    Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
+                    LogMajorEventMismatchError(e);
                     return;
                 }
                 else RevertGameState();
                 break;
             case MajorEvent.ui_closed:
                 if (GetCurrentGameState() != GameState.ui){
-                    Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
+                    LogMajorEventMismatchError(e);
                     return;
                 }
                 else RevertGameState();
                 break;
             case MajorEvent.dialogue_ended:
                 if (GetCurrentGameState() != GameState.dialogue){
-                    Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
+                    LogMajorEventMismatchError(e);
                     return;
                 }
                 else RevertGameState();
                 break;
             case MajorEvent.battle_ended:
                 if (GetCurrentGameState() != GameState.battle){
-                    Debug.LogError($"Attempt to revert from {GetCurrentGameState()} due to major event {e}");
+                    LogMajorEventMismatchError(e);
                     return;
                 }
                 else RevertGameState();
@@ -137,6 +142,9 @@ public class GameManager : PersistentSingleton<GameManager> {
         else if (_useSpawner){
             GameEvents.Instance.SpawnPlayer.Invoke(Player, _nextSpawner, SpawnerOffset);
             _useSpawner = false;
+        }
+        else if (_nextSpawner == -999) { //flag 
+            Player.transform.position = SaveManager.PlayerData.savedPos;
         }
     }
 }

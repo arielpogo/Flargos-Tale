@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Handles the logistics of starting/stopping battles
+/// </summary>
 public class BattleManager : PersistentSingleton<BattleManager>{
     [SerializeField] private GameObject _character;
     private string SceneNameToReturnTo = string.Empty;
@@ -27,6 +30,12 @@ public class BattleManager : PersistentSingleton<BattleManager>{
         SceneNameToReturnTo = string.Empty;
     }
 }
+
+//****************************//
+//                            //
+//      RELATED CLASSES       //
+//                            //
+//****************************//
 
 public class Enemy {
     public Enemy(string n, int h, string s) {

@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Brings player between scenes
+/// </summary>
 public class LevelChanger : MonoBehaviour{
     [SerializeField] private int _toScene = 0;
     [SerializeField] private int _toSpawner = 0;

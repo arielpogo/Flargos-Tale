@@ -1,6 +1,9 @@
 using TMPro;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Menu to see your money, stats, HP etc.
+/// </summary>
 public class StatusMenu : NavigableMenu{
     public void Awake() {
         //child 1 is strength label, its child is the value

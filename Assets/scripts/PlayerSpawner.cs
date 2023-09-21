@@ -1,8 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Moves the player to the appropriate spot when entering a level.
+/// </summary>
 public class PlayerSpawner : MonoBehaviour {
     [SerializeField] private int _spawnerID;
     private void Awake(){
@@ -15,6 +15,7 @@ public class PlayerSpawner : MonoBehaviour {
         }
     }
 
+    //called by GameManager
     private void SpawnPlayer(GameObject Player, int id, Vector3 offset){
         if (id == _spawnerID) {
             Player.transform.position = transform.position + offset;

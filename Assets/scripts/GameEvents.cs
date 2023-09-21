@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Class which holds game events.
+/// Class which holds game events aka delegates for decoupled communication
 /// </summary>
 public class GameEvents : PersistentSingleton<GameEvents> {
     //Gamestate

@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// The menu to pick your next action during a battle.
+/// </summary>
 public class GeneralBattleMenu : NavigableMenu {
     [SerializeField] private GameObject _fightMenuPrefab;
     [SerializeField] private GameObject _actMenuPrefab; //remove soon

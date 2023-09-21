@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-//Handles movement for the player
+/// <summary>
+/// Player control component, when in the overworld.
+/// </summary>
 public class OverworldPlayerControl : MonoBehaviour {
 
     //****************************//
@@ -141,7 +143,7 @@ public class OverworldPlayerControl : MonoBehaviour {
             _animator.SetFloat("yDir", _movementInput.y);
             _shadowAnimator.SetFloat("yDir", _movementInput.y);
         }
-        //.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
+        //Debug.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
     }
 
     /// <summary>
@@ -171,6 +173,7 @@ public class OverworldPlayerControl : MonoBehaviour {
     //                            //
     //****************************//
 
+    //instantiate the general menu
     public void OnOpenMenu() {
          Factory.InstantiateNavigableMenu(_generalMenuPrefab, null); //previous menu == null because this class isn't a navigatablemenu
     }
@@ -179,6 +182,7 @@ public class OverworldPlayerControl : MonoBehaviour {
 
     }
 
+    //Changes controls if menu is opened, dialogue/cutscene started in overworld, etc.
     private void UpdateActionMap() {
         switch (GameManager.Instance.GetCurrentGameState()) {
             case GameState.overworld_control:

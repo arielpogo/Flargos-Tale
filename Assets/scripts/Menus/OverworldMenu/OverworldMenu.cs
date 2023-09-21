@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// The general menu acessible in the overworld.
+/// </summary>
 public class OverworldMenu : NavigableMenu{
     [SerializeField] private GameObject _inventoryMenuPrefab;
     [SerializeField] private GameObject _questMenuPrefab; //remove soon
