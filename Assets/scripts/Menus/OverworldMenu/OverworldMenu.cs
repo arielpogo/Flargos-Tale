@@ -1,12 +1,15 @@
 using UnityEngine;
 
+/// <summary>
+/// The general menu acessible in the overworld.
+/// </summary>
 public class OverworldMenu : NavigableMenu{
     [SerializeField] private GameObject _inventoryMenuPrefab;
     [SerializeField] private GameObject _questMenuPrefab; //remove soon
     [SerializeField] private GameObject _statsMenuPrefab;
 
     private void Start() {
-        GameManager.Instance.ChangeGameState(GameState.overworldMenu);
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_opened);
     }
 
     public override void OnSubmit() {

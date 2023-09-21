@@ -1,9 +1,12 @@
 using UnityEngine;
 
+/// <summary>
+/// NPC that starts a battle when spoken to.
+/// </summary>
 public class NPCBattleStarter : BaseInteractableClass {
-    [SerializeField] private EnemyBattle Battle;
+    [SerializeField] int battleID;
 
     public override void Interact() {
-        GameEvents.Instance.StartBattle(Battle);
+        BattleManager.Instance.StartBattle(battleID);
     }
 }

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-//Handles movement for the player
+/// <summary>
+/// Player control component, when in the overworld.
+/// </summary>
 public class OverworldPlayerControl : MonoBehaviour {
 
     //****************************//
@@ -43,8 +45,8 @@ public class OverworldPlayerControl : MonoBehaviour {
     //                            //
     //****************************//
 
-    // Grabbing components, subscribing to events, calculating values.
-    private void Start() {
+    // Grabbing components, subscribing to events
+    private void Awake() {
         _rigidBody = GetComponent<Rigidbody2D>(); //sets rb to the Rigidbody2D component in the Player object
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -55,6 +57,9 @@ public class OverworldPlayerControl : MonoBehaviour {
         _shadowRigidBody = GameObject.FindWithTag("PlayerShadow").GetComponent<Rigidbody2D>();
 
         GameEvents.Instance.OnGameStateChange += UpdateActionMap;
+    }
+    private void Start() {
+        GameEvents.Instance.MajorEvent.Invoke(MajorEvent.overworld_enter);
     }
 
     private void OnDestroy() {
@@ -138,7 +143,7 @@ public class OverworldPlayerControl : MonoBehaviour {
             _animator.SetFloat("yDir", _movementInput.y);
             _shadowAnimator.SetFloat("yDir", _movementInput.y);
         }
-        //.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
+        //Debug.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance);
     }
 
     /// <summary>
@@ -168,17 +173,22 @@ public class OverworldPlayerControl : MonoBehaviour {
     //                            //
     //****************************//
 
+    //instantiate the general menu
     public void OnOpenMenu() {
-         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null, GameState.overworld); //previous menu == null because this class isn't a navigatablemenu
+         Factory.InstantiateNavigableMenu(_generalMenuPrefab, null); //previous menu == null because this class isn't a navigatablemenu
     }
 
-    private void UpdateActionMap(GameState NewGameState) {
-        switch (NewGameState) {
-            case GameState.overworld:
-            case GameState.cutscene_with_control:
+    public void OnToggleDebug(){
+
+    }
+
+    //Changes controls if menu is opened, dialogue/cutscene started in overworld, etc.
+    private void UpdateActionMap() {
+        switch (GameManager.Instance.GetCurrentGameState()) {
+            case GameState.overworld_control:
                 _playerInput.SwitchCurrentActionMap("Overworld");
                 break;
-            case GameState.overworldMenu:
+            case GameState.ui:
                 _playerInput.SwitchCurrentActionMap("UI");
                 break;
             case GameState.dialogue:

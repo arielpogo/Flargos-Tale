@@ -23,7 +23,6 @@ public abstract class NavigableMenu : MonoBehaviour {
     protected int _currentRow = -1;
 
     protected NavigableMenu _previousMenu = null; //what menu to return control to afterward, set by the calling menu
-    protected GameState _returnGameState;
 
     protected Color _colorIdle = Color.white;
     protected Color _colorHighlight = new(1, 1, 0, 1);
@@ -31,9 +30,8 @@ public abstract class NavigableMenu : MonoBehaviour {
     /// <summary>
     /// Called by the Factory.InstantiateNavigableMenu() function
     /// </summary>
-    public void Setup(NavigableMenu previousMenu, GameState returnGameState) {
+    public void Setup(NavigableMenu previousMenu) {
         _previousMenu = previousMenu;
-        _returnGameState = returnGameState;
     }
 
     /// <summary>
@@ -93,14 +91,16 @@ public abstract class NavigableMenu : MonoBehaviour {
 
     //for when we want the whole menu to close, subsequently calling all the way down
     public virtual void TotalMenuClose() {
-        if (_previousMenu == null) {
-            GameManager.Instance.ChangeGameState(_returnGameState);
-            Destroy(gameObject);
-        }
-        else {
-            _previousMenu.enabled = true;
-            _previousMenu.TotalMenuClose();
-            Destroy(gameObject);
+        if (enabled) {
+            if (_previousMenu == null) {
+                GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_closed);
+                Destroy(gameObject);
+            }
+            else {
+                _previousMenu.enabled = true;
+                _previousMenu.TotalMenuClose();
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -111,7 +111,7 @@ public abstract class NavigableMenu : MonoBehaviour {
         InputAction.CallbackContext context = value.GetCallBackContext();
         if (context.performed && enabled) {
             if (_previousMenu == null) {
-                GameManager.Instance.ChangeGameState(_returnGameState);
+                GameEvents.Instance.MajorEvent.Invoke(MajorEvent.ui_closed);
                 Destroy(gameObject);
             }
             else {

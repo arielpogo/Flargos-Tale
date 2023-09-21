@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Rainbow effect for provided image
+/// </summary>
 public class Rainbow : MonoBehaviour {
-    // Start is called before the first frame update
-
     private Image image;
 
     private byte r = 255, g = 0, b = 0;
