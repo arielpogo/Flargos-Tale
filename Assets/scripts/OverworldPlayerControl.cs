@@ -79,7 +79,9 @@ public class OverworldPlayerControl : MonoBehaviour {
     public void OnInteract() {
         //raycast in the direction the sprite is looking, filtering for Raycast Interactables
         RaycastHit2D results = Physics2D.Raycast(_rigidBody.position, _overworldLookDirection, _interactDistance, LayerMask.GetMask("Raycast Interactable"));
+        //Debug.DrawRay(_rigidBody.position, _overworldLookDirection * _interactDistance, Color.cyan, 5.0f);
         if (results.transform == null) return;
+        if (!results.collider.isTrigger) return;
         results.transform.GetComponent<BaseInteractableClass>().Interact();
     }
 

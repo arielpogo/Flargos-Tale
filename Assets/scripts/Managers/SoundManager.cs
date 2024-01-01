@@ -105,7 +105,7 @@ public class SoundManager : PersistentSingleton<SoundManager> {
                 song = "bpc_music_temp";
                 break;
             case 4:
-                song = "grass";
+                song = "tyler_town";
                 break;
             case 5:
                 song = "kisses_village";

@@ -171,16 +171,16 @@ public class DialogueHandler : MonoBehaviour {
                         case 2: //2 decisions, left or right selects
                             if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; } //A
                             else if (_decisionDirection.x < 0) decision = 1;
-                            else if (decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; }
-                            else decision = 2;
+                            else if (_decisionDirection.x > 0 && decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; } //D
+                            else if (_decisionDirection.x > 0) decision = 2;
                             break;
-                        case 3: //3: w/s picks middle, a/d pick first/last
+                        case 3: //3: w picks middle, a/d pick first/last
                             if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; } //A
                             else if (_decisionDirection.x < 0) decision = 1;
                             else if (_decisionDirection.x > 0 && decision == 3) { GoToNextNodeViaExit("Outcome3"); decision = 5; } //D
                             else if (_decisionDirection.x > 0) decision = 3;
-                            else if (decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; } //W or S
-                            else decision = 2;
+                            else if (_decisionDirection.y > 0 && decision == 2) { GoToNextNodeViaExit("Outcome2"); decision = 5; } //W
+                            else if (_decisionDirection.y > 0) decision = 2;
                             break;
                         case 4: //4: a/d pick first/last, w picks 2nd, s picks 3rd
                             if (_decisionDirection.x < 0 && decision == 1) { GoToNextNodeViaExit("Outcome1"); decision = 5; }//A
@@ -316,6 +316,18 @@ public class DialogueHandler : MonoBehaviour {
                     float wait; //TryParse sets even if it fails
                     bool success = float.TryParse(commandParameters, out wait);
                     if (success) yield return new WaitForSeconds(wait/1000.0f);
+                    else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for wait command");
+                    continue;
+                }
+                else if(command == 'F') { //font size
+                    while ((i < input.Length) && Char.IsDigit(input[i])) { //prevent segmentation fault
+                        commandParameters += input[i];
+                        i++;
+                    }
+                    i--; //because the loop does i++ again at the end, it'll skip if a new command is right next to this one, so we undo that here
+                    float size; //TryParse sets even if it fails
+                    bool success = float.TryParse(commandParameters, out size);
+                    if (success) textHolder.fontSize = size;
                     else Debug.Log($"Dialogue Error: Parameter {commandParameters} unable to be parsed for wait command");
                     continue;
                 }
